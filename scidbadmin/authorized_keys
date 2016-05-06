@@ -1,0 +1,5 @@
+{% set my_cluster = pillar['scidb_minion_info'][grains['fqdn']]['clusterName'] %}
+{% set my_hosts   = pillar['scidb_cluster_info'][my_cluster] %}
+{% for host in my_hosts %}
+{{ pillar['scidbadmin_id_rsa_pub'] + ' scidbadmin@' + host }}
+{% endfor %}

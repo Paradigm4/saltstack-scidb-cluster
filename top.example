@@ -1,0 +1,17 @@
+base:
+  'server*.cluster.scidb.foo.com':
+                            # configs for all hosts in cluster
+    - scidb_ee              # packages
+    - scidb_firewall_off    # no firewall (!!!!)
+    - scidb_config_ini      # scidb config.ini
+    - scidbadmin            # scidbadmin account, ssh setup, known_hosts
+
+  'server0.cluster.scidb.foo.com':
+                            # configs only for "server0" or the "head server"
+    - postgres_scidb_config # reconfig PG for scidb
+    - scidb_init            # server-0 initializes the others
+
+# TODO: add scidb as a service
+
+
+
