@@ -1,5 +1,5 @@
 include:
-  - postgres               # standard formulas
+  - postgres               # https://github.com/saltstack-formulas/postgres-formulas
 
 #
 # 4 steps according to scidb install instructions
@@ -14,13 +14,12 @@ include:
 #- file: # 3. postgresql.conf modified for multiple connections
 #- xxx: posgres service set to start at boot
 
+{% set my_fqdn = grains['fqdn'] %}
+{% set scidbNameAddr = pillar['scidb_minion_info'][my_fqdn]['scidbNameAddr']  %} # FQDN or IP addr
 
-# set my_ip   = grains['fqdn_ip4a'][0] 	error here # a list, I wonder why, maybe if many interfaces?
-{% set all_info = pillar.get('scidb_minion_info', {})  %}
-{% set my_fqdn = grains['fqdn'] %}                 # looks like msg1.local.paradigm4.com
-{% set my_info = all_info[my_fqdn]  %}
-{% set scidbNameAddr = my_info['scidbNameAddr']  %} # a string
+# todo: can the above use ... pillar.scidb_minion_info as in YAML ?
 # DEBUG TIP show_full_context()
+
 
 postgres_scidb_config_hba_conf:
   file.replace:

@@ -1,7 +1,7 @@
 # setup scidb config.ini
 
 include:
-  - scidb_ee
+  - scidb_ee                                      # scidb packages, in this repo
 
 # TODO: adjust this to be the 'basename' of the hostname
 #       if its hard to stop at first number

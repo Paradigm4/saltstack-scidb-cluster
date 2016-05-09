@@ -1,19 +1,12 @@
 # setup scidb config.ini
 
 include:
-  - scidb_ee
+  - scidb_ee                       # scidb packages, in this repo
 
-# set my_ip   = grains['fqdn_ip4a'][0] 	error here # a list, I wonder why, maybe if many interfaces?
-{% set all_info = pillar.get('scidb_minion_info', {})  %}
 {% set my_fqdn = grains['fqdn'] %}                 # looks like msg1.local.paradigm4.com
-{% set my_info = all_info[my_fqdn]  %}
-{% set scidbNameAddr = my_info['scidbNameAddr']  %} # a string
-{% set my_clusterName = my_info['clusterName']     %} # a string
-{% set my_clusterHosts = pillar['scidb_cluster_info'][my_clusterName] %} # an array
-{% set my_id_rsa_pub = pillar['scidbadmin_id_rsa_pub'] %}
-
+{% set my_clusterName = pillar['scidb_minion_info'][my_fqdn]['clusterName'] %} # string
+{% set my_clusterHosts = pillar['scidb_cluster_info'][my_clusterName] %} # an array of fqdns or ip addresses
 # DEBUG TIP show_full_context()
-
 
 # go ahead and install the config.ini on all hosts in cluster
 
@@ -87,7 +80,7 @@ scidbadmin_ssh_known_hosts:
       - file: scidbadmin_ssh_auth
 
 #
-# does the (as scidbadmin) pgpass_updater.py to make the .pgpass
+# run pgpass_updater.py (as scidbadmin) which makes the .pgpass file
 #
 scidbadmin_pgpass:
   cmd.script:

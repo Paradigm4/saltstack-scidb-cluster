@@ -58,7 +58,7 @@ get_gpg_paradigm4_repo:                 # "magic" name, gets invoked how?
 #
 # enabling/disabling scidb_repo
 #
-# this is baded on how epel-formula does it, not everything about that is understood yet
+# this is baded on how epel-formula does it, why it defines two different state names is as yet unknown
 #
 
 {% if salt['pillar.get']('paradigm4:disabled', False) %}

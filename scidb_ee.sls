@@ -4,19 +4,15 @@
 ## note confidential info in rpm
 
 include:
-  - paradigm4 # repo access
-  - epel      # repo access
-  # do not include postgres, only server-0 gets it installed
+  - epel      # access epel repo, uses https://github.com/saltstack-formulas/epel-formula
+  - paradigm4 # access paradigm4 repo
 
 
-# note: some of this might need to be under a "scidb service" -- model some of this after postgresql formula
-
-paradigm4:   # note wrong name in repo, should be "scidb" or "scidbee",
-             # so far I can't make it differ from package name
+paradigm4:   # note name for software packages in repo are likely to become "scidb" or "scidb EE"
   pkg.installed:
-    - name: paradigm4-15.12-all-coord # really "scidb" package
+    - name: paradigm4-15.12-all-coord      # "scidb" packages
     - require:
-      - pkg: paradigm4_repo
-      - pkg: epel_release
+      - pkg: epel_release                  # from epel
+      - pkg: paradigm4_repo                # from paradgim4
 
 
