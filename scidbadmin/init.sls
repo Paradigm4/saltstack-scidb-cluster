@@ -3,9 +3,12 @@
 include:
   - scidb_ee                       # scidb packages, in this repo
 
-{% set my_fqdn = grains['fqdn'] %}                 # looks like msg1.local.paradigm4.com
-{% set my_clusterName = pillar['scidb_minion_info'][my_fqdn]['clusterName'] %} # string
-{% set my_clusterHosts = pillar['scidb_cluster_info'][my_clusterName] %} # an array of fqdns or ip addresses
+
+# find cluster and server from administrative name (same as minion is addressed)
+{% set myClusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}
+{% set knownHostsList = pillar['scidb_cluster_info'][myClusterName]['knownHostsList'] %}
+{% set pgHostNameAddr = pillar['scidb_cluster_info'][myClusterName]['hosts'][0]['scidbNameAddr'] %}
+
 # DEBUG TIP show_full_context()
 
 # go ahead and install the config.ini on all hosts in cluster
@@ -68,11 +71,13 @@ scidbadmin_ssh_auth:
 #    so we will use 'ssh -o StrickHostKeyChecking=no <host> true' as a way to fill it in
 #    don't know how to iterate over my_clusterHosts, so join into a string
 #    separated by spaces and have a shell script do it
-#    TOOD: figure out if local iteration is possible
+#    TODO: figure out if local iteration is possible
+#    TODO: can the actions of the script be incorporated directly into this file without
+#          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
 #
 scidbadmin_ssh_known_hosts:
   cmd.script:
-    - name: {{ 'capture_known_hosts.sh ' + my_clusterHosts|join(' ') }}  
+    - name: {{ 'capture_known_hosts.sh ' + knownHostsList|join(' ') }}  
     - user: scidbadmin
     - shell: /bin/bash
     - source: salt://scidbadmin/capture_known_hosts.sh 
@@ -82,17 +87,16 @@ scidbadmin_ssh_known_hosts:
 #
 # run pgpass_updater.py (as scidbadmin) which makes the .pgpass file
 #
+#    TODO: can the actions of the script be incorporated directly into this file without
+#          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
+#
 scidbadmin_pgpass:
   cmd.script:
 {% if pillar['scidb_numeric'] %}
     - name: {{ 'do_pgpass.sh ' + grains.get('fqdn_ip4', ['Y.Y.Y.Y'])[0] }}
 {% else %}
-    # this is broken because we need not the current fqdn, but that of server-0
-    # so we need to (in jina)
-    #  look up my_info
-    #  look up my_cluster
-    #  look up scidbNameAddr-0 
-    - name: {{ 'do_pgpass.sh ' + grains.get('fqdn', ['foo.local.xyzzy.com']) }}
+    # need the scidbNameAddr for the cluster's server-0
+    - name: {{ 'do_pgpass.sh ' + pgHostNameAddr }}
 {% endif %}
     - user: root
     - shell: /bin/bash

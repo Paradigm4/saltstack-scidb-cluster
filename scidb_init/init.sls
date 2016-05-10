@@ -1,3 +1,5 @@
+#    TODO: can the actions of the script be incorporated directly into this file without
+#          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
 
 scidbadmin_initall:
   cmd.script:

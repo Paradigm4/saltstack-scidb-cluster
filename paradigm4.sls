@@ -30,12 +30,12 @@ paradigm4_repo:
 set_password_paradigm4_repo:
   file.replace:
     - name: /etc/yum.repos.d/paradigm4.repo
-    - pattern: 'https://*downloads'
+    - pattern: 'https://[^@]*@downloads'    # cover any credential that might precede the path itself
     - repl:    {{ 'https://' + credential + '@downloads' }}  # insert the credential
     - require:
       - pkg: paradigm4_repo
 
-set_pubkey_paradigm4_repo:              # "magic" name, gets invoked how?
+set_pubkey_paradigm4_repo:
   file.replace:
     - append_if_not_found: True
     - name: /etc/yum.repos.d/paradigm4.repo
@@ -46,7 +46,7 @@ set_pubkey_paradigm4_repo:              # "magic" name, gets invoked how?
       - file: set_password_paradigm4_repo # was paradgim4_repo until password needed adding
 
 # action to set gpgcheck on for paradigm4 repo
-get_gpg_paradigm4_repo:                 # "magic" name, gets invoked how?
+get_gpg_paradigm4_repo:
   file.replace:
     - append_if_not_found: True
     - name: /etc/yum.repos.d/paradigm4.repo
