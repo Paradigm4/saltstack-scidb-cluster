@@ -5,6 +5,7 @@ base:
     - scidb_firewall_off    # no firewall (!!!!)
     - scidb_config_ini      # scidb config.ini
     - scidbadmin            # scidbadmin account, ssh setup, known_hosts
+    - scidb_ifcfg           # set up secondary networks, if pillar so configured
 
   'server0.cluster.scidb.foo.com':
                             # configs only for "server0" or the "head server"
