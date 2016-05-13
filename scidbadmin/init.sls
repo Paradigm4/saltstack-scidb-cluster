@@ -92,12 +92,8 @@ scidbadmin_ssh_known_hosts:
 #
 scidbadmin_pgpass:
   cmd.script:
-{% if pillar['scidb_numeric'] %}
-    - name: {{ 'do_pgpass.sh ' + grains.get('fqdn_ip4', ['Y.Y.Y.Y'])[0] }}
-{% else %}
     # need the scidbNameAddr for the cluster's server-0
     - name: {{ 'do_pgpass.sh ' + pgHostNameAddr }}
-{% endif %}
     - user: root
     - shell: /bin/bash
     - source: salt://scidbadmin/do_pgpass.sh 

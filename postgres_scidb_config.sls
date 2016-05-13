@@ -36,7 +36,6 @@ postgres_scidb_config_hba_conf:
 #       or listing all the hosts in the cluster explicitly
 # would need a jinja loop
 # {# - repl: {{ 'host all all ' + scidbNameAddr  + ' md5' }} #} # TODO: parameterize subnet/mask per cluster
-# we would also select using jinja if scidb_numeric / else / endif jinja
 
 # TODO: learn how to extend the formulas states, may eliminate a second postgres restart
 #       after overwriting hba.conf

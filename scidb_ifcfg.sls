@@ -10,7 +10,12 @@
 {% set scidbNameAddr= pillar['scidb_cluster_info'][clusterName]['hosts'][serverNumber]['scidbNameAddr'] %}
 {% set scidbDevice  = pillar['scidb_cluster_info'][clusterName]['hosts'][serverNumber]['scidbDevice'] %}
 
-{% set scidbIPAddr  = salt['dnsutil.A'](scidbNameAddr)[0] %}  # returns a list
+{% set minionIPAddr = salt['dnsutil.A'](grains['fqdn'])[0] %}  # returns a list
+#DEBUG {{ 'scidbNameAddr is ' + scidbNameAddr }}
+
+{% set scidbIPAddr  = salt['dnsutil.A'](scidbNameAddr) [0] %}  # returns a list
+#DEBUG {{ 'scidbIPAddr is ' + scidbIPAddr }}
+
 
 # DEBUG TIP: show_full_context()
 
@@ -25,7 +30,10 @@
 # NOTE: could add other checks and looking at existing values listed above
 #       as secondary check
 
-{% if True or scidbIPAddr != grains['fqdn_ip4'][0] %} 
+{% if scidbIPAddr != grains['fqdn_ip4'][0] %}   # fqdn_ip4 will be empty if fqdn is not a DNS name
+                                                # and fqdn is really just minion name so can be
+                                                # overridden by /etc/salt/minion_id to not be an fqdn
+                                                # known to DNS, by accident
 
 # scidbDevice -- enable if matching and not controlled by some other tool
 #
@@ -83,12 +91,19 @@ scidb_ifcfg_not_nm_controlled:
     - require:
       - file: scidb_ifcfg_userctl
 
+scidb_ifcfg_down:
+  cmd.run:
+    - user: root
+    - name: {{ 'ifdown '  + scidbDevice }}
+    - require:
+      - file: scidb_ifcfg_not_nm_controlled
+
 scidb_ifcfg:
   cmd.run:
     - user: root
-    - name: {{ 'ip link set dev ' + scidbDevice + ' up' }}
+    - name: {{ 'ifup ' + scidbDevice }}
     - require:
-      - file: scidb_ifcfg_not_nm_controlled
+      - cmd: scidb_ifcfg_down
 
 {% endif %}
 
