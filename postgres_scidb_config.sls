@@ -15,13 +15,16 @@ include:
 #- xxx: posgres service set to start at boot
 
 # find cluster and server from administrative name (same as minion is addressed)
-{% set my_clusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}
-{% set my_listenerCIDR = pillar['scidb_cluster_info'][my_clusterName]['postgresListenerCIDR']  %}
+{% set clusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}
+{% set serverNumber = pillar['scidb_minion_info'][grains['fqdn']]['serverNumber']  %}
+{% set listenerCIDR = pillar['scidb_cluster_info'][clusterName]['postgresListenerCIDR']  %}
+
 
 
 # todo: can the above use ... pillar.scidb_minion_info as in YAML ?
 # DEBUG TIP show_full_context()
 
+{% if serverNumber == 0 %}
 
 postgres_scidb_config_hba_conf:
   file.replace:
@@ -29,7 +32,7 @@ postgres_scidb_config_hba_conf:
   - append_if_not_found: True
   - pattern: "host all all * md5"               # should not be there anyway ... really this is an "append"
 # TODO: this is the only way this can work for PG 8.3
-  - repl: {{ 'host all all ' + my_listenerCIDR + ' md5' }}
+  - repl: {{ 'host all all ' + listenerCIDR + ' md5' }}
   - require:
     - file: pg_hba.conf
 # TODO: for PG 9.3 something like this might allow using the scidbNameAddr + mask 
@@ -54,3 +57,11 @@ postgres_scidb_config_restart:
   - name: service postgresql restart
   - require:
     - service: run-postgresql
+
+{% else %}  # just define an empty postgres_scidb_config_restart
+
+postgres_scidb_config_restart:
+  cmd.run:
+  - name: /bin/true
+
+{% endif %}

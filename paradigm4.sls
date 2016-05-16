@@ -40,7 +40,7 @@ set_pubkey_paradigm4_repo:
     - append_if_not_found: True
     - name: /etc/yum.repos.d/paradigm4.repo
     - pattern: '^gpgkey=.*'
-    - repl: 'gpgkey=file://etc/pki/rpm-gpg/RPM-GPG-KEY-P4'
+    - repl: 'gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-P4'
     - require:
       - pkg: paradigm4_repo
       - file: set_password_paradigm4_repo # was paradgim4_repo until password needed adding

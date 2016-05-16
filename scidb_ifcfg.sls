@@ -91,12 +91,21 @@ scidb_ifcfg_not_nm_controlled:
     - require:
       - file: scidb_ifcfg_userctl
 
+scidb_ifcfg_not_dhcp:
+  file.replace:
+    - name: {{ '/etc/sysconfig/network-scripts/ifcfg-' + scidbDevice }}
+    - pattern: "BOOTPROTO=.*"
+    - repl: "BOOTPROTO=none"
+    - append_if_not_found: True
+    - require:
+      - file: scidb_ifcfg_not_nm_controlled
+
 scidb_ifcfg_down:
   cmd.run:
     - user: root
     - name: {{ 'ifdown '  + scidbDevice }}
     - require:
-      - file: scidb_ifcfg_not_nm_controlled
+      - file: scidb_ifcfg_not_dhcp
 
 scidb_ifcfg:
   cmd.run:

@@ -83,6 +83,7 @@ scidbadmin_ssh_known_hosts:
     - source: salt://scidbadmin/capture_known_hosts.sh 
     - require:
       - file: scidbadmin_ssh_auth
+      - cmd: scidb_ifcfg
 
 #
 # run pgpass_updater.py (as scidbadmin) which makes the .pgpass file

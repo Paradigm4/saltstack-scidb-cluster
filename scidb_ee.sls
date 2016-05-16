@@ -8,11 +8,12 @@ include:
   - paradigm4 # access paradigm4 repo
 
 
-paradigm4:   # note name for software packages in repo are likely to become "scidb" or "scidb EE"
+scidb_ee:
   pkg.installed:
-    - name: paradigm4-15.12-all-coord      # "scidb" packages
+    - pkgs: 
+      - paradigm4-15.12-all-coord      # scidb, coordinator-capable
+      - paradigm4-15.12-p4             # p4-only plugins
     - require:
       - pkg: epel_release                  # from epel
       - pkg: paradigm4_repo                # from paradgim4
-
 
