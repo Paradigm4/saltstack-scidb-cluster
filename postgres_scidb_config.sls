@@ -1,6 +1,5 @@
-include:
-  - postgres               # https://github.com/saltstack-formulas/postgres-formulas
 
+{% set KEY = pillar['scidbKEY'] %}
 #
 # 4 steps according to scidb install instructions
 # all on head server at this time
@@ -15,10 +14,56 @@ include:
 #- xxx: posgres service set to start at boot
 
 # find cluster and server from administrative name (same as minion is addressed)
-{% set clusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}
-{% set serverNumber = pillar['scidb_minion_info'][grains['fqdn']]['serverNumber']  %}
+{% set clusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']         %}
+{% set serverNumber = pillar['scidb_minion_info'][grains['fqdn']]['serverNumber']        %}
 {% set listenerCIDR = pillar['scidb_cluster_info'][clusterName]['postgresListenerCIDR']  %}
 
+{% if KEY == 'new' %}
+
+#
+# postgres packages, try making sure 9.3 is installed before hitting the postgres formula
+#  in case it handles it
+#
+scidb_postgres84_remove:
+  pkg.removed:
+    - pkgs:
+      - postgresql
+      - postgresql-contrib
+      - postgresql-libs
+      - postgresql-server
+
+scidb_postgres93_repo_install:
+  pkg.installed:
+    - name: pgdg-centos93
+    - sources:
+      - pgdg-centos93: https://download.postgresql.org/pub/repos/yum/9.3/redhat/rhel-6-x86_64/pgdg-centos93-9.3-2.noarch.rpm
+    - require:
+      - pkg: scidb_postgres84_remove
+
+scidb_postgres93_install:
+  pkg.installed:
+    - pkgs:
+      - postgresql93
+      - postgresql93-contrib
+      - postgresql93-server
+    - require:
+      - pkg: scidb_postgres93_repo_install
+
+{% elif KEY == 'old' %}
+
+scidb_postgres93_remove:
+pkg.removed:
+    - pgdg-93-centos
+    # - plus whatever new gets installed in 93
+
+include:
+  - postgres               # https://github.com/saltstack-formulas/postgres-formulas
+
+{% else %}
+
+need an error here
+
+{% endif %}
 
 
 # todo: can the above use ... pillar.scidb_minion_info as in YAML ?
@@ -35,6 +80,7 @@ postgres_scidb_config_hba_conf:
   - repl: {{ 'host all all ' + listenerCIDR + ' md5' }}
   - require:
     - file: pg_hba.conf
+
 # TODO: for PG 9.3 something like this might allow using the scidbNameAddr + mask 
 #       or listing all the hosts in the cluster explicitly
 # would need a jinja loop
@@ -43,11 +89,21 @@ postgres_scidb_config_hba_conf:
 # TODO: learn how to extend the formulas states, may eliminate a second postgres restart
 #       after overwriting hba.conf
 
+
 #
 # NOTE:
 #    pillar postgres.postgresconf must be set in e.g. /srv/pillar/data.sls to
 #    "listener_address = '*' \n port = 5432"
 #
+
+postgres_scidb_config_postgresql_conf:
+  file.replace:
+  - name: /var/lib/pgsql/data/postgresql.conf     # TODO: use postgres.conf_dir (see  pg_hba.conf formula)
+  - append_if_not_found: True
+  - pattern: "max_connections = .*"
+  - repl:    "max_connections = 300"    # enough for 256 instances (we have 128 physical cores)
+  - require:
+    - file: postgres_scidb_config_hba_conf
 
 # todo: cmd.run -> service.running (see p4_pxeboot)
 postgres_scidb_config_restart:

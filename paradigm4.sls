@@ -2,36 +2,45 @@
 ## see https://github.com/saltstack-formulas/epel-formula/blob/master/epel/init.sls
 
 ## Completely ignore non-RHEL-like systems at this time
+{% set KEY = pillar['scidbKEY'] %}
 
-# TODO: become a lookup table for scidb GPG keys & RPM URLs for various releases
-{% set credential = pillar['paradigm4_repo_credential'] %}
-{% set locals = {
-'key'      : 'https://downloads.paradigm4.com/key',
-'key_hash' :'md5=2f90272e0230804262e334e654067d7b',
-'rpm'      : 'https://' + credential + '@downloads.paradigm4.com/enterprise/15.12/centos6.3/paradigm4-repo-15-12.noarch.rpm',
-} %}
-# note: generated the md5 by doing a wget of the key and the doing md5sum on it
+{% set VER  = pillar['scidbVER'][KEY] %}
+{% set REPO = pillar['scidbREPO'][KEY] %}
+
+{% set CRED = pillar['paradigm4_repo_CRED'][KEY] %}  # per version credentials, '' or ends in @
+
+{% set keyURI = REPO + '/key' %}
+{% if KEY == 'new' %}
+ {% set keyHash = 'md5=2f90272e0230804262e334e654067d7b' %} # by md5sum
+ {% set reporpmURI ='http://' + CRED + REPO + '/enterprise/16.7RC/centos6.3/paradigm4-repo-16-7.noarch.rpm' %}
+{% elif KEY == 'old' %}
+ {% set keyHash = 'md5=2f90272e0230804262e334e654067d7b' %} # by md5sum
+ {% set reporpmURI ='https://' + CRED + REPO + '/enterprise/'+VER+'/centos6.3/paradigm4-repo-15-12.noarch.rpm' %}
+{% else %}
+  need a better way to make an error than this
+{% endif %}
 
 # TODO: eliminate defaults ... use the pillar or the local, but not both
 
 install_pubkey_paradigm4:
   file.managed:
     - name: /etc/pki/rpm-gpg/RPM-GPG-KEY-P4
-    - source: {{ locals.key }}
-    - source_hash: {{ locals.key_hash }}
+    - source_hash: {{ keyHash }}
+    - source: {{ keyURI }}
+    - TODO: add option to make wget do --no-check-certificate
 
 paradigm4_repo:
   pkg.installed:
     - sources:
-      - paradigm4-repo: {{ locals.rpm }}
+      - paradigm4-repo: {{ reporpmURI }}
     - require:
       - file: install_pubkey_paradigm4
 
 set_password_paradigm4_repo:
   file.replace:
     - name: /etc/yum.repos.d/paradigm4.repo
-    - pattern: 'https://[^@]*@?downloads.paradigm4.com/enterprise'  # cover any credential that might precede the path itself
-    - repl:    {{ 'https://' + credential + '@downloads.paradigm4.com/enterprise' }}  # insert the credential
+    - pattern: '//[^@]*@?downloads'  # regex must match an optional credential like xx:yy@
+    - repl:    {{ '//' + CRED + 'downloads' }}
     - require:
       - pkg: paradigm4_repo
 
