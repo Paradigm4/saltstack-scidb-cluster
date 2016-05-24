@@ -13,9 +13,6 @@ scidb_service_add:
   cmd.run:
     - user: root
     - name: {{ '/opt/scidb/'+VER+'/bin/scidb.py -m p4_system service_add -u scidbadmin' }}
-    - require:
-      - pkg: scidb_ee                       # must have scidb and plugins installed
-      - cmd: scidb_initall                  # must be initialized before it can start
 
 scidb_service_register:
   cmd.run:
