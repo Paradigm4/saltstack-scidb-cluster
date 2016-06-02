@@ -1,7 +1,6 @@
 ## Completely ignore non-RHEL based systems
 
-{% set KEY = pillar['scidbKEY'] %}
-{% set VER = pillar['scidbVER'][KEY] %}
+{% set VER = pillar['scidb_ver'] %}
 
 scidb_ee_remove:
   pkg.removed:

@@ -2,6 +2,7 @@
 
 include:
   - scidb_ee                       # scidb packages, in this repo
+  - scidb_ifcfg
 
 
 # find cluster and server from administrative name (same as minion is addressed)

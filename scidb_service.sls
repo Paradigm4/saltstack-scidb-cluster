@@ -1,7 +1,6 @@
 # Completely ignore non-RHEL-like systems at this time
 
-{% set KEY = pillar['scidbKEY'] %}
-{% set VER = pillar['scidbVER'][KEY] %}
+{% set VER = pillar['scidb_ver'] %}
 
 # convert minion fqdn to scidbNameAddr
 {% set clusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}

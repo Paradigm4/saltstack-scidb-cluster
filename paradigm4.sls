@@ -2,37 +2,26 @@
 ## see https://github.com/saltstack-formulas/epel-formula/blob/master/epel/init.sls
 
 ## Completely ignore non-RHEL-like systems at this time
-{% set KEY = pillar['scidbKEY'] %}
+{% set CRED     = pillar['p4repo_creds'] %}  # user:password@
+{% set REPO     = pillar['p4repo'] %}
+{% set KEY_HASH = pillar['p4repo_gpg_key_hash'] %}
+{% set VER      = pillar['scidb_ver'] %}
 
-{% set VER  = pillar['scidbVER'][KEY] %}
-{% set REPO = pillar['scidbREPO'][KEY] %}
-
-{% set CRED = pillar['paradigm4_repo_CRED'][KEY] %}  # per version credentials, '' or ends in @
-
-{% set keyURI = REPO + '/key' %}
-{% if KEY == 'new' %}
- {% set keyHash = 'md5=2f90272e0230804262e334e654067d7b' %} # by md5sum
- {% set reporpmURI ='http://' + CRED + REPO + '/enterprise/16.7RC/centos6.3/paradigm4-repo-16-7.noarch.rpm' %}
-{% elif KEY == 'old' %}
- {% set keyHash = 'md5=2f90272e0230804262e334e654067d7b' %} # by md5sum
- {% set reporpmURI ='https://' + CRED + REPO + '/enterprise/'+VER+'/centos6.3/paradigm4-repo-15-12.noarch.rpm' %}
-{% else %}
-  need a better way to make an error than this
-{% endif %}
 
 # TODO: eliminate defaults ... use the pillar or the local, but not both
 
 install_pubkey_paradigm4:
   file.managed:
     - name: /etc/pki/rpm-gpg/RPM-GPG-KEY-P4
-    - source_hash: {{ keyHash }}
-    - source: {{ keyURI }}
+    - source_hash: {{ KEY_HASH }}
+    - source: {{ REPO + '/key' }}
     - TODO: add option to make wget do --no-check-certificate
 
+{% set REPO_URI = pillar['p4repo_scheme'] + '//' + CRED + REPO %}
 paradigm4_repo:
   pkg.installed:
     - sources:
-      - paradigm4-repo: {{ reporpmURI }}
+      - paradigm4-repo: {{ REPO_URI }}
     - require:
       - file: install_pubkey_paradigm4
 

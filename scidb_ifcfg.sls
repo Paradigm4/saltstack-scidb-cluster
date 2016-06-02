@@ -31,9 +31,8 @@
 #       as secondary check
 
 {% if scidbIPAddr != grains['fqdn_ip4'][0] %}   # fqdn_ip4 will be empty if fqdn is not a DNS name
-                                                # and fqdn is really just minion name so can be
-                                                # overridden by /etc/salt/minion_id to not be an fqdn
-                                                # known to DNS, by accident
+                                                # and so this implies we are on a secondary network
+                                                # and need to configure the network scripts
 
 # scidbDevice -- enable if matching and not controlled by some other tool
 #
@@ -114,8 +113,8 @@ scidb_ifcfg:
     - require:
       - cmd: scidb_ifcfg_down
 
+{% else %}
+scidb_ifcfg:                            # externally referenced
+  cmd.run:
+    - name: /bin/true
 {% endif %}
-
-
-
-

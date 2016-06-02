@@ -1,7 +1,6 @@
 ## Completely ignore non-RHEL based systems
 
-{% set KEY = pillar['scidbKEY'] %}
-{% set VER = pillar['scidbVER'][KEY] %}
+{% set VER = pillar['scidb_ver'] %}
 
 include:
   - epel      # access epel repo, uses https://github.com/saltstack-formulas/epel-formula
@@ -18,7 +17,23 @@ scidb_ee:
       - {{ 'paradigm4-'+VER+'-tests'     }}      # tests
       - {{ 'paradigm4-'+VER+'-p4'        }}      # p4-only plugins
       - {{ 'paradigm4-'+VER+'-p4-tests'  }}      # p4-tests
+      # dbg symbols
+      #- {{ 'paradigm4-'+VER+'-client-dbg' }}
+      #- {{ 'paradigm4-'+VER+'-client-python-dbg' }}
+      #- {{ 'paradigm4-'+VER+'-dbg' }}
+      #- {{ 'paradigm4-'+VER+'-dev-tools-dbg' }}
+      #- {{ 'paradigm4-'+VER+'-plugins-dbg' }}
+      #- {{ 'paradigm4-'+VER+'-utils-dbg' }}
+      # debuginfo symbols
+      #- {{ 'libpqxx-debuginfo' }}                # note different name pattern
+# 'log4cxx-debuginfo'                # note different name pattern
+      #- {{ 'protobuf-debuginfo' }}               # note different name pattern
+# 'scidb-'+VER+'-cityhash-debuginfo'
+# 'scidb-'+VER+'-libboost-debuginfo'
+# 'scidb-'+VER+'-mpich2-debuginfo' 
+
     - require:
       - pkg: epel_release                  # from epel
       - pkg: paradigm4_repo                # from paradgim4
+
 
