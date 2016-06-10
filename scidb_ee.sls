@@ -17,20 +17,22 @@ scidb_ee:
       - {{ 'paradigm4-'+VER+'-tests'     }}      # tests
       - {{ 'paradigm4-'+VER+'-p4'        }}      # p4-only plugins
       - {{ 'paradigm4-'+VER+'-p4-tests'  }}      # p4-tests
-      # dbg symbols
-      #- {{ 'paradigm4-'+VER+'-client-dbg' }}
-      #- {{ 'paradigm4-'+VER+'-client-python-dbg' }}
-      #- {{ 'paradigm4-'+VER+'-dbg' }}
-      #- {{ 'paradigm4-'+VER+'-dev-tools-dbg' }}
-      #- {{ 'paradigm4-'+VER+'-plugins-dbg' }}
-      #- {{ 'paradigm4-'+VER+'-utils-dbg' }}
+      # debuginfo - symbols
+      # note, in the first set, the package names need fixing to debuginfo
+      - {{ 'paradigm4-'+VER+'-client-dbg' }}
+      - {{ 'paradigm4-'+VER+'-client-python-dbg' }}
+      - {{ 'paradigm4-'+VER+'-dbg' }}
+      - {{ 'paradigm4-'+VER+'-dev-tools-dbg' }}
+      - {{ 'paradigm4-'+VER+'-plugins-dbg' }}
+      - {{ 'paradigm4-'+VER+'-utils-dbg' }}
       # debuginfo symbols
-      #- {{ 'libpqxx-debuginfo' }}                # note different name pattern
-# 'log4cxx-debuginfo'                # note different name pattern
-      #- {{ 'protobuf-debuginfo' }}               # note different name pattern
-# 'scidb-'+VER+'-cityhash-debuginfo'
-# 'scidb-'+VER+'-libboost-debuginfo'
-# 'scidb-'+VER+'-mpich2-debuginfo' 
+      - 'libpqxx-debuginfo'
+      - 'protobuf-debuginfo'
+      # the following were in the 15.12 repo, but not in 16.6RC, for c6 or c7
+      - 'log4cxx-debuginfo'                            # not seen since 15.12 release
+      - {{ 'scidb-'+VER+'-cityhash-debuginfo' }}       # not since 15.12 release
+      - {{ 'scidb-'+VER+'-libboost-debuginfo' }}       # not since 15.12 release
+      - {{ 'scidb-'+VER+'-mpich2-debuginfo' }}         # not since 15.12 release
 
     - require:
       - pkg: epel_release                  # from epel
