@@ -2,56 +2,51 @@
 ## see https://github.com/saltstack-formulas/epel-formula/blob/master/epel/init.sls
 
 ## Completely ignore non-RHEL-like systems at this time
-{% set CRED     = pillar['p4repo_creds'] %}  # user:password@
-{% set REPO     = pillar['p4repo'] %}
-{% set KEY_HASH = pillar['p4repo_gpg_key_hash'] %}
-{% set VER      = pillar['scidb_ver'] %}
-
+{% set CREDS         = pillar['p4repo_creds'] %}
+{% set REPO_KEY      = pillar['p4repo_key'] %}
+{% set REPO_KEY_HASH = pillar['p4repo_key_hash'] %}
+{% set REPO_RPM      = pillar['p4repo_rpm'] %}
+{% set VER           = pillar['scidb_ver'] %}
 
 # TODO: eliminate defaults ... use the pillar or the local, but not both
 
-install_pubkey_paradigm4:
+# get the key
+# TODO: add option to make wget do --no-check-certificate if possible?
+{% set REPO_KEY_URI = pillar['p4repo_scheme'] + '//' + CREDS + REPO_KEY %}
+paradigm4_install_pubkey:
   file.managed:
     - name: /etc/pki/rpm-gpg/RPM-GPG-KEY-P4
-    - source_hash: {{ KEY_HASH }}
-    - source: {{ REPO + '/key' }}
-    - TODO: add option to make wget do --no-check-certificate
+    - source: {{ REPO_KEY_URI }}
+    - source_hash: {{ REPO_KEY_HASH }}
 
-{% set REPO_URI = pillar['p4repo_scheme'] + '//' + CRED + REPO %}
+{% set REPO_RPM_URI = pillar['p4repo_scheme'] + '//' + CREDS + REPO_RPM %}
 paradigm4_repo:
   pkg.installed:
     - sources:
-      - paradigm4-repo: {{ REPO_URI }}
-    - require:
-      - file: install_pubkey_paradigm4
+      - paradigm4-repo: {{ REPO_RPM_URI }}
 
-set_password_paradigm4_repo:
+paradigm4_repo_set_password:
   file.replace:
     - name: /etc/yum.repos.d/paradigm4.repo
-    - pattern: '//[^@]*@?downloads'  # regex must match an optional credential like xx:yy@
-    - repl:    {{ '//' + CRED + 'downloads' }}
-    - require:
-      - pkg: paradigm4_repo
+    - flags: 'MULTILINE'
+    - pattern:    '://downloads'
+    - repl:    {{ '://' + CREDS + 'downloads' }}
+    - count: 2                                    # baseurl=, gpgkey=
 
-set_pubkey_paradigm4_repo:
+paradigm4_repo_set_pubkey:
   file.replace:
     - append_if_not_found: True
     - name: /etc/yum.repos.d/paradigm4.repo
     - pattern: '^gpgkey=.*'
     - repl: 'gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-P4'
-    - require:
-      - pkg: paradigm4_repo
-      - file: set_password_paradigm4_repo # was paradgim4_repo until password needed adding
 
 # action to set gpgcheck on for paradigm4 repo
-get_gpg_paradigm4_repo:
+paradigm4_repo_get_gpg:
   file.replace:
     - append_if_not_found: True
     - name: /etc/yum.repos.d/paradigm4.repo
     - pattern: 'gpgcheck=.*'
     - repl: 'gpgcheck=1'
-    - require:
-      - pkg: paradigm4_repo
 
 #
 # enabling/disabling scidb_repo
@@ -72,4 +67,3 @@ enable_paradigm4:
     - pattern: '^enabled=[0,1]'
     - repl: 'enabled=1'
 {% endif %}
-
