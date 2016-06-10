@@ -1,10 +1,5 @@
 # setup scidb config.ini
 
-include:
-  - scidb_ee                       # scidb packages, in this repo
-  - scidb_ifcfg
-
-
 # find cluster and server from administrative name (same as minion is addressed)
 {% set myClusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}
 {% set knownHostsList = pillar['scidb_cluster_info'][myClusterName]['knownHostsList'] %}
@@ -30,7 +25,7 @@ scidbadmin_ssh_priv:
     - name: '~scidbadmin/.ssh/id_rsa'
     - makedirs: True
     - source: 'salt://scidbadmin/id_rsa'
-    - template: jinja  # expand the the file with private key data kept in pillar
+    - template: jinja
     - user: scidbadmin
     - group: scidbadmin
     - mode: 600
@@ -45,7 +40,7 @@ scidbadmin_ssh_pub:
     - name: '~scidbadmin/.ssh/id_rsa.pub'
     - makedirs: True
     - source: 'salt://scidbadmin/id_rsa.pub'
-    - template: jinja  # expand the the file with pub key data kept in pillar
+    - template: jinja
     - user: scidbadmin
     - group: scidbadmin
     - mode: 644
@@ -59,7 +54,7 @@ scidbadmin_ssh_auth:
     - name: '~scidbadmin/.ssh/authorized_keys'
     - makedirs: True
     - source: 'salt://scidbadmin/authorized_keys'
-    - template: jinja  # expand the the file with pub key data kept in pillar
+    - template: jinja
     - user: scidbadmin
     - group: scidbadmin
     - mode: 600
@@ -84,7 +79,6 @@ scidbadmin_ssh_known_hosts:
     - source: salt://scidbadmin/capture_known_hosts.sh 
     - require:
       - file: scidbadmin_ssh_auth
-      - cmd: scidb_ifcfg
 
 #
 # run pgpass_updater.py (as scidbadmin) which makes the .pgpass file
@@ -99,6 +93,7 @@ scidbadmin_pgpass:
     - user: root
     - shell: /bin/bash
     - source: salt://scidbadmin/do_pgpass.sh 
+    - template: jinja
     - require:
       - cmd: scidbadmin_ssh_known_hosts
 
