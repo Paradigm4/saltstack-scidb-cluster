@@ -51,14 +51,23 @@ scidb_postgres_install:
 
 {% if serverNumber == 0 %}
 
+# stop the existing service (may be using wrong config)
+postgres_scidb_stopped:
+  service.dead:
+    - name: {{ pillar['postgres_service'] }}
+
 # remove current config directory (will be replaced by postgres init)
 scidb_postgres_rmdir:
   file.absent:
     - name: {{ pillar['postgres_data_dir'] }}
 
-postgres_scidb__init:
+postgres_scidb_init:
   cmd.run:
-  - name: service {{pillar['postgres_service']}} initdb
+{% if grains['init'] == "systemd" %}
+    - name: /usr/pgsql-9.3/bin/postgresql93-setup initdb
+{% else %}
+    - name: service {{pillar['postgres_service']}} initdb
+{% endif %}
 
 postgres_scidb_config_hba_conf:
   file.replace:
