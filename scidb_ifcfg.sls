@@ -38,12 +38,19 @@
 #
 # todo: might need to put the jinja if here
 #       so its only if its a secondary?
+
+scidb_ifcfg_exists: 
+  file.exists:
+    - name: {{ '/etc/sysconfig/network-scripts/ifcfg-' + scidbDevice }}
+
 scidb_ifcfg_onboot:
   file.replace:
     - name: {{ '/etc/sysconfig/network-scripts/ifcfg-' + scidbDevice }}
     - pattern: "ONBOOT=.*"
     - repl:    "ONBOOT='yes'"
     - append_if_not_found: True
+    - require:
+      - file: scidb_ifcfg_exists
 
 scidb_ifcfg_network:
   file.replace:
@@ -101,17 +108,36 @@ scidb_ifcfg_not_dhcp:
 
 scidb_ifcfg_down:
   cmd.run:
-    - user: root
+    - runas: root
     - name: {{ 'ifdown '  + scidbDevice }}
     - require:
       - file: scidb_ifcfg_not_dhcp
 
-scidb_ifcfg:
+scidb_ifcfg_down_wait:
   cmd.run:
-    - user: root
-    - name: {{ 'ifup ' + scidbDevice }}
+    - name: sleep 2
     - require:
       - cmd: scidb_ifcfg_down
+
+scidb_ifcfg_up:
+  cmd.run:
+    - runas: root
+    - name: {{ '/usr/sbin/ifup ' + scidbDevice }}
+    - require:
+      - cmd: scidb_ifcfg_down
+
+scidb_ifcfg_up_wait:
+  cmd.run:
+    - name: sleep 4
+    - require:
+      - cmd: scidb_ifcfg_up
+
+scidb_ifcfg:
+  cmd.run:
+    - runas: root
+    - name: ip addr
+    - require:
+      - cmd: scidb_ifcfg_up_wait
 
 {% else %}
 scidb_ifcfg:                            # externally referenced
