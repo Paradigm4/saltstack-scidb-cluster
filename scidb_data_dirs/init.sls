@@ -3,10 +3,15 @@
 
 {% set VER = pillar['scidb_ver'] %}
 
-scidb_stopall:
-  cmd.run:
-    - user: scidbadmin
-    - name: {{ '/opt/scidb/'+VER+'/bin/scidb.py stopall test_dbname' }}
+{% set my_cluster = pillar['scidb_minion_info'][grains['fqdn']]['clusterName'] %}
+{% set HOST_NUMS  = pillar['scidb_cluster_info'][my_cluster]['hostNums'] %}
+
+# this hangs on a clean install on centos7, maybe be casue there's never been an init?
+# I don't think this was strictly necessary, I think I put this in an attempt to be clean
+#scidb_stopall:
+#  cmd.run:
+#    - user: scidbadmin
+#    - name: {{ '/opt/scidb/'+VER+'/bin/scidb.py stopall test_dbname' }}
 
 scidb_base_path_init:
   cmd.script:
@@ -17,14 +22,29 @@ scidb_base_path_init:
     - template: jinja
 
 #
-# remove and re-create mounted data directories
+# make sure that data drives are mounted
+#
+/mnt/data0:
+  mount.mounted:
+  - device: /dev/nvme0n1p1
+  - fstype: xfs
+  - mkmnt: True
+
+/mnt/data1:
+  mount.mounted:
+  - device: /dev/nvme1n1p1
+  - fstype: xfs
+  - mkmnt: True
+
+#
+# remove and re-create data directories referenced by the config.ini
 #
 
 #
 # TODO: eliminate duplication/dependence between this file and config.ini
 # TODO: eliminate the host loop here
 #
-{% for host in [0, 1, 2, 3] %}
+{% for host in HOST_NUMS %}
   {# set first_half = [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] #}
   {# set first_half = [ 0,1,2,3,4,5,6,7] #}
   {# set first_half = [ 0,1,2,3] #}
@@ -33,9 +53,9 @@ scidb_base_path_init:
   {% for inst in first_half %}
 {{'remove_' +host|string+ '-' +inst|string+ ":" }}
   file.absent:
-{{'  - name: /data0/' +host|string+ '-' +inst|string }}
+{{'  - name: /mnt/data0/' +host|string+ '-' +inst|string }}
 
-{{'/data0/' +host|string+ '-' +inst|string+ ":" }}
+{{'/mnt/data0/' +host|string+ '-' +inst|string+ ":" }}
   file.directory:
     - user: scidbadmin
     - mode: 755
@@ -48,9 +68,9 @@ scidb_base_path_init:
   {% for inst in second_half %}
 {{'remove_' +host|string+ '-' +inst|string+ ":" }}
   file.absent:
-{{'  - name: /data1/' +host|string+ '-' +inst|string }}
+{{'  - name: /mnt/data1/' +host|string+ '-' +inst|string }}
 
-{{'/data1/' +host|string+ '-' +inst|string+ ":" }}
+{{'/mnt/data1/' +host|string+ '-' +inst|string+ ":" }}
   file.directory:
     - user: scidbadmin
     - mode: 755
