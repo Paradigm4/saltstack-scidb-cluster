@@ -2,6 +2,11 @@
 
 {% set VER = pillar['scidb_ver'] %}
 
+
+scidb_ee_yum_clean_metadata:
+  cmd.run:
+    - name: yum --enablerepo=paradigm4 clean metadata 
+
 scidb_ee_remove:
   pkg.removed:
     - pkgs: 
@@ -18,26 +23,37 @@ scidb_ee_remove:
       - {{ 'scidb-'+VER+'-libboost-date-time' }}
       - {{ 'scidb-'+VER+'-libboost-filesystem' }}
       - {{ 'scidb-'+VER+'-libboost-regex' }}
+      - {{ 'scidb-'+VER+'-libboost-program-options' }}
       - {{ 'scidb-'+VER+'-libboost-serialization' }}
       - {{ 'scidb-'+VER+'-libboost-system' }}
       - {{ 'scidb-'+VER+'-libboost-thread' }}
       - {{ 'scidb-'+VER+'-mpich2' }}
       - {{ 'protobuf' }}
       - {{ 'log4cxx' }}
+      - {{ 'libpqxx' }}
+      - {{ 'scidb-'+VER+'-cityhash-debuginfo' }}
+      - {{ 'scidb-'+VER+'-libboost-debuginfo' }}
+      - {{ 'scidb-'+VER+'-mpich2-debuginfo' }}
 
 # TODO: should not need to know version to install p4, only selecting the repo
 scidb_ee_old_remove:
   pkg.removed:
     - pkgs: 
+      - paradigm4-repo-15-7
       - paradigm4-repo-15-12
       - paradigm4-repo-16-6
-      - paradigm4-repo-16-7
+      - paradigm4-repo-16-9
 
 # does not really belong in here, but it is handy to avoid mistakes
 p4repo_remove:
   pkg.removed:
     - pkgs: 
       - paradigm4-repo
+
+# because the various test repos all claim to the be the final,
+# yum thinks we have out of data repo xml files and so on.
+# so when re-installing if we remove the metadata, yum forgets about that and starts fresh
+
 
 
 

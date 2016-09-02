@@ -4,6 +4,7 @@
 {% set myClusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}
 {% set knownHostsList = pillar['scidb_cluster_info'][myClusterName]['knownHostsList'] %}
 {% set pgHostNameAddr = pillar['scidb_cluster_info'][myClusterName]['hosts'][0]['scidbNameAddr'] %}
+{% set VER            = pillar['scidb_ver'] %}
 
 # DEBUG TIP show_full_context()
 
@@ -86,6 +87,7 @@ scidbadmin_ssh_known_hosts:
 #    TODO: can the actions of the script be incorporated directly into this file without
 #          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
 #
+{% if VER != "15.7" %}   # after 15.7, not sure about 15.12 anymore
 scidbadmin_pgpass:
   cmd.script:
     # need the scidbNameAddr for the cluster's server-0
@@ -96,5 +98,6 @@ scidbadmin_pgpass:
     - template: jinja
     - require:
       - cmd: scidbadmin_ssh_known_hosts
+{% endif %}
 
 #  TODO: scidb service ... here or in yet another directory?

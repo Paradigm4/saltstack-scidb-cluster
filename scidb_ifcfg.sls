@@ -28,8 +28,23 @@
 
 # determine if scidbName/scidbDevice is "primary"
 # NOTE: could add other checks and looking at existing values listed above
-#       as secondary check
-
+#       as a secondary check
+# JHM: seem to be going enterning here on msg1, when
+#      I expect sidbIPAddr and the value of grains to match and make this skip
+#      Instead of figuring this out now, I will comment out this sls
+#      from the top.sls for the moment
+# TODO: re-add this to the top.sls for msg1 and debug why the following is
+#       not matching despite the following hints...
+#HINT on msg1,
+#HINT "salt-call dnsutil.A msg1.local.paradigm4.com" gives
+#HINT  10.0.16.92
+#HINT "salt call -g" and searching for fqdn_ip4 gives 10.0.16.92
+#HINT so in this case, I expect == and am not getting it.
+#HINT   problem in the grains expression?
+#HINT   just have a rule use some jina to dump this to a debug file in /tmp
+#HINT   with some kind of replace statement... that would probably be a trick
+#HINT   worth working out
+# 
 {% if scidbIPAddr != grains['fqdn_ip4'][0] %}   # fqdn_ip4 will be empty if fqdn is not a DNS name
                                                 # and so this implies we are on a secondary network
                                                 # and need to configure the network scripts
@@ -38,6 +53,8 @@
 #
 # todo: might need to put the jinja if here
 #       so its only if its a secondary?
+
+
 
 scidb_ifcfg_exists: 
   file.exists:

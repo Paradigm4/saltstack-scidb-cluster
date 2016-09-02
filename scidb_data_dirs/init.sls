@@ -6,6 +6,12 @@
 {% set my_cluster = pillar['scidb_minion_info'][grains['fqdn']]['clusterName'] %}
 {% set HOST_NUMS  = pillar['scidb_cluster_info'][my_cluster]['hostNums'] %}
 
+{% set HOST_LAST_INST = pillar['scidb_cluster_info'][my_cluster]['hostLastInst'] %}
+
+{% set DATA_0_INSTS  = pillar['scidb_cluster_info'][my_cluster]['data0insts'] %}
+{% set DATA_1_INSTS  = pillar['scidb_cluster_info'][my_cluster]['data1insts'] %}
+{% set DATA_PREFIX   = pillar['scidb_cluster_info'][my_cluster]['dataPrefix'] %}
+
 # this hangs on a clean install on centos7, maybe be casue there's never been an init?
 # I don't think this was strictly necessary, I think I put this in an attempt to be clean
 #scidb_stopall:
@@ -24,17 +30,42 @@ scidb_base_path_init:
 #
 # make sure that data drives are mounted
 #
-/mnt/data0:
+
+###
+### TODO: learn how to make fancier jinja "if" comparisons
+###       like length of list to decide whether there is
+###       a list of device needing to be mounted
+###       until then, let the variable be just True or False
+###       and have it mount or not mount two fixed-name devices
+###
+
+{% if DATA_PREFIX == "/mnt/data" %}   # otherwise typically /home/data
+
+{{DATA_PREFIX}}0:
   mount.mounted:
   - device: /dev/nvme0n1p1
   - fstype: xfs
   - mkmnt: True
 
-/mnt/data1:
+{{DATA_PREFIX}}1:
   mount.mounted:
   - device: /dev/nvme1n1p1
   - fstype: xfs
   - mkmnt: True
+
+{% else %}
+
+{{DATA_PREFIX}}0:
+  file.directory:
+    - user: scidbadmin
+    - mode: 755
+
+{{DATA_PREFIX}}1:
+  file.directory:
+    - user: scidbadmin
+    - mode: 755
+
+{% endif %}
 
 #
 # remove and re-create data directories referenced by the config.ini
@@ -45,34 +76,26 @@ scidb_base_path_init:
 # TODO: eliminate the host loop here
 #
 {% for host in HOST_NUMS %}
-  {# set first_half = [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] #}
-  {# set first_half = [ 0,1,2,3,4,5,6,7] #}
-  {# set first_half = [ 0,1,2,3] #}
-  {# set first_half = [ 0,1,] #}
-  {% set first_half = [ 0 ] %}
-  {% for inst in first_half %}
-{{'remove_' +host|string+ '-' +inst|string+ ":" }}
+  {% for inst in DATA_0_INSTS %}
+remove_0_{{ host|string+ '-' +inst|string+ ":" }}
   file.absent:
-{{'  - name: /mnt/data0/' +host|string+ '-' +inst|string }}
+  - name: {{DATA_PREFIX +'0/' +host|string+ '-' +inst|string }}
 
-{{'/mnt/data0/' +host|string+ '-' +inst|string+ ":" }}
+create_0_{{ host|string+ '-' +inst|string+ ":" }}
   file.directory:
     - user: scidbadmin
     - mode: 755
+    - name: {{DATA_PREFIX +'0/' +host|string+ '-' +inst|string }}
   {% endfor %}
-  {# set second_half = [16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31] #}
-  {# set second_half = [8,9,10,11,12,13,14,15] #}
-  {# set second_half = [4,5,6,7] #}
-  {# set second_half = [2,3] #}
-  {% set second_half = [1] %}
-  {% for inst in second_half %}
-{{'remove_' +host|string+ '-' +inst|string+ ":" }}
+  {% for inst in DATA_1_INSTS %}
+remove_1_{{ host|string+ '-' +inst|string+ ":" }}
   file.absent:
-{{'  - name: /mnt/data1/' +host|string+ '-' +inst|string }}
+  - name: {{DATA_PREFIX +'1/' +host|string+ '-' +inst|string }}
 
-{{'/mnt/data1/' +host|string+ '-' +inst|string+ ":" }}
+create_1_{{ host|string+ '-' +inst|string+ ":" }}
   file.directory:
     - user: scidbadmin
     - mode: 755
+    - name: {{DATA_PREFIX +'1/' +host|string+ '-' +inst|string }}
   {% endfor %}
 {% endfor %}

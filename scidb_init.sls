@@ -23,15 +23,21 @@ scidb_init_syscat:
 # 1) that scidb_data_dirs succeeded (not included here because its destructive)
 
 # scidb_init_check_data_dirs_empty:
-#   cmd.run:  needs implementation
+# TODO >>>  cmd.run:  needs implementation <<<
 
 # 2) that each server can reach the psql server
 #    e.g. validate psql config and local .pgpass file
 #
+#  this is a common failure point. common problems...
+#  1) check ~scidbadmin/.pgpass contents
+#     if it has multiple hostnames delete the file
+#     (maybe the append-anyway option when configuring that file is a bad idea?)
+#
 scidb_init_psql_check:
   cmd.run:
-    - runas: scidbadmin
-    - name: psql -U test_dbuser -d test_dbname -h {{ PSQL_NAME_ADDR }} --command="select 'Hello world'"
+    #- runas: scidbadmin  # strange, runuser works here, but runas did not?
+    #                     # could the quote escapes have been wrong?
+    - name: runuser scidbadmin -c "psql -U test_dbuser -d test_dbname -h {{ PSQL_NAME_ADDR }} --command=\"select 'Hello world'\""
 
 {% if (serverNumber == 0 ) %}
 scidb_initall:
