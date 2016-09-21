@@ -7,6 +7,7 @@ scidb_ee_yum_clean_metadata:
   cmd.run:
     - name: yum --enablerepo=paradigm4 clean metadata 
 
+# TODO: should we iterate over multiple VER?
 scidb_ee_remove:
   pkg.removed:
     - pkgs: 
@@ -35,8 +36,19 @@ scidb_ee_remove:
       - {{ 'scidb-'+VER+'-libboost-debuginfo' }}
       - {{ 'scidb-'+VER+'-mpich2-debuginfo' }}
 
+#
+# to handle 15.12 on centos7, some things had to be pre-installed by rpm before yum (see scidb_ee.sls)
+# so after the yum removals, we need to remove those with rpm
+#
+{% if VER == '15.12' and grains.osfinger == "CentOS Linux-7" %}  # have to force install of scidb because it wants postgres-84 and libpqxx-3.1
+scidb_ee_rpm_remove:
+  cmd.run:
+    - user: root
+    - name: {{ 'rpm -e paradigm4-15.12 paradigm4-15.12-dev-tools' }}
+{% endif %} # end VER 15.12 and centos7
+
 # TODO: should not need to know version to install p4, only selecting the repo
-scidb_ee_old_remove:
+scidb_ee_all_repo_remove:
   pkg.removed:
     - pkgs: 
       - paradigm4-repo-15-7

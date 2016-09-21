@@ -71,7 +71,8 @@ scidb_postgres_rmdir_other:
 
 # remove current config directory to be replaced by
 # o postgresl93-setup initdb or
-# o service postgres initdb)
+# o service postgres-8.4 initdb
+# o service postgres initdb
 #
 scidb_postgres_rmdir:
   file.absent:
@@ -82,6 +83,9 @@ postgres_scidb_init:
   cmd.run:
 {% if grains['init'] == "systemd" %}
     - name: /usr/pgsql-9.3/bin/postgresql93-setup initdb
+    # postgres84
+    #- name: "runuser -u postgres /usr/pgsql-8.4/bin/initdb  -D /var/lib/pgsql/8.4/data/"
+    #- name: service {{pillar['postgres_service']}} initdb
 {% else %}
     - name: service {{pillar['postgres_service']}} initdb # won't work until service is started
 {% endif %}
