@@ -1,6 +1,6 @@
 # setup scidb config.ini
 
-{% set VER = pillar['scidb_ver'] %}
+{% from 'idioms.sls' import VER %} {# was: set VER = pillar['scidb_ver'] #}
 
 # config.ini source is now per-cluster
 #            however all have to share the same mechanism

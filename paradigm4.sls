@@ -1,25 +1,21 @@
 ## JHM: modeled after the saltstack formula for epel,
 ## see https://github.com/saltstack-formulas/epel-formula/blob/master/epel/init.sls
 
-## Completely ignore non-RHEL-like systems at this time
-{% set CREDS         = pillar['p4repo_creds'] %}
-{% set REPO_KEY      = pillar['p4repo_key'] %}
-{% set REPO_KEY_HASH = pillar['p4repo_key_hash'] %}
-{% set REPO_RPM      = pillar['p4repo_rpm'] %}
-{% set VER           = pillar['scidb_ver'] %}
+{% from 'idioms.sls' import VER %}
+{% from 'idioms.sls' import REPO_CREDS, REPO_SCHEME, REPO_KEY, REPO_KEY_HASH, REPO_RPM %}
 
 # TODO: eliminate defaults ... use the pillar or the local, but not both
 
 # get the key
 # TODO: add option to make wget do --no-check-certificate if possible?
-{% set REPO_KEY_URI = pillar['p4repo_scheme'] + '//' + CREDS + REPO_KEY %}
+{% set REPO_KEY_URI = REPO_SCHEME + '//' + REPO_CREDS + REPO_KEY %}
 paradigm4_install_pubkey:
   file.managed:
     - name: /etc/pki/rpm-gpg/RPM-GPG-KEY-P4
     - source: {{ REPO_KEY_URI }}
     - source_hash: {{ REPO_KEY_HASH }}
 
-{% set REPO_RPM_URI = pillar['p4repo_scheme'] + '//' + CREDS + REPO_RPM %}
+{% set REPO_RPM_URI = REPO_SCHEME + '//' + REPO_CREDS + REPO_RPM %}
 paradigm4_repo:
   pkg.installed:
     - sources:
@@ -30,7 +26,7 @@ paradigm4_repo_set_password:
     - name: /etc/yum.repos.d/paradigm4.repo
     - flags: 'MULTILINE'
     - pattern:    '://downloads'
-    - repl:    {{ '://' + CREDS + 'downloads' }}
+    - repl:    {{ '://' + REPO_CREDS + 'downloads' }}
     - count: 2                                    # baseurl=, gpgkey=
 
 paradigm4_repo_set_pubkey:

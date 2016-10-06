@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-{% set VER = pillar['scidb_ver'] %}
+{% from 'idioms.sls' import VER %}
 
 set -x
 

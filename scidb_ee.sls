@@ -1,6 +1,6 @@
 ## Completely ignore non-RHEL based systems
 
-{% set VER = pillar['scidb_ver'] %}
+{% from 'idioms.sls' import VER %} {# was: set VER = pillar['scidb_ver'] #}
 
 include:
   - epel      # access epel repo, uses https://github.com/saltstack-formulas/epel-formula

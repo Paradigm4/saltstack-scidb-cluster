@@ -1,13 +1,17 @@
 ## Completely ignore non-RHEL based systems
 
-{% set VER = pillar['scidb_ver'] %}
+{% from 'idioms.sls' import VER %} {# was: set VER = pillar['scidb_ver'] #}
 
 
-scidb_ee_yum_clean_metadata:
+scidb_ee_yum_clean_all:
   cmd.run:
-    - name: yum --enablerepo=paradigm4 clean metadata 
+    - name: yum clean all       # this one succeeds even when paradigm4 not currently installed
 
-# TODO: should we iterate over multiple VER?
+scidb_ee_yum_clean_all_p4:
+  cmd.run:
+    - name: yum --enablerepo=paradigm4 clean all
+
+# TODO: should iterate over multiple VER, because 
 scidb_ee_remove:
   pkg.removed:
     - pkgs: 
@@ -35,6 +39,9 @@ scidb_ee_remove:
       - {{ 'scidb-'+VER+'-cityhash-debuginfo' }}
       - {{ 'scidb-'+VER+'-libboost-debuginfo' }}
       - {{ 'scidb-'+VER+'-mpich2-debuginfo' }}
+      - {{ 'scidb-16.6-cityhash-debuginfo' }}
+      - {{ 'scidb-16.6-libboost-debuginfo' }}
+      - {{ 'scidb-16.6-mpich2-debuginfo' }}
 
 #
 # to handle 15.12 on centos7, some things had to be pre-installed by rpm before yum (see scidb_ee.sls)

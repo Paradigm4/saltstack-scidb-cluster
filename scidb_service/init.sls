@@ -1,9 +1,9 @@
 # Completely ignore non-RHEL-like systems at this time
 
-{% set VER = pillar['scidb_ver'] %}
+{% from 'idioms.sls' import VER %} {# was: set VER = pillar['scidb_ver'] #}
+{% from 'idioms.sls' import CLUSTER_NAME %}
 
 # convert minion fqdn to scidbNameAddr
-{% set clusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}
 {% set serverNumber = pillar['scidb_minion_info'][grains['fqdn']]['serverNumber'] %}
 
 # DEBUG TIP: show_full_context()

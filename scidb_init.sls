@@ -1,10 +1,10 @@
 #    TODO: can the actions of do_inits.sh be incorporated directly into this file without
 #          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
 
-{% set VER = pillar['scidb_ver'] %}
+{% from 'idioms.sls' import VER %} {# was: set VER = pillar['scidb_ver'] #}
+{% from 'idioms.sls' import CLUSTER_NAME %}
 
 # which host the posgres is running on
-{% set CLUSTER_NAME  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}
 {% set PSQL_NAME_ADDR = pillar['scidb_cluster_info'][CLUSTER_NAME]['hosts'][0]['scidbNameAddr'] %}
 
 # which index in cluster this server is
@@ -35,9 +35,9 @@ scidb_init_syscat:
 #
 scidb_init_psql_check:
   cmd.run:
-    #- runas: scidbadmin  # strange, runuser works here, but runas did not?
-    #                     # could the quote escapes have been wrong?
-    - name: runuser scidbadmin -c "psql -U test_dbuser -d test_dbname -h {{ PSQL_NAME_ADDR }} --command=\"select 'Hello world'\""
+    # NOTE: link from /usr/bin/psql to /etc/alternatives missing on Centos7 ... so just use the alternative link itself
+    # NOTE: this will only work on Centos, may require rework with 'cmd.run - unless:' to also work with ubuntu
+    - name: runuser scidbadmin -c "/etc/alternatives/pgsql-psql -U test_dbuser -d test_dbname -h {{ PSQL_NAME_ADDR }} --command=\"select 'Hello world'\""
 
 {% if (serverNumber == 0 ) %}
 scidb_initall:

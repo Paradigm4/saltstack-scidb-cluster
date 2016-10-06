@@ -1,16 +1,14 @@
 #    TODO: can the actions of do_inits.sh be incorporated directly into this file without
 #          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
 
-{% set VER = pillar['scidb_ver'] %}
+{% from 'idioms.sls' import CLUSTER_NAME, VER %}
+{% from 'idioms.sls' import REPO_CREDS, REPO_SCHEME, REPO_KEY, REPO_KEY_HASH, REPO_RPM %}
 
-{% set my_cluster = pillar['scidb_minion_info'][grains['fqdn']]['clusterName'] %}
-{% set HOST_NUMS  = pillar['scidb_cluster_info'][my_cluster]['hostNums'] %}
-
-{% set HOST_LAST_INST = pillar['scidb_cluster_info'][my_cluster]['hostLastInst'] %}
-
-{% set DATA_0_INSTS  = pillar['scidb_cluster_info'][my_cluster]['data0insts'] %}
-{% set DATA_1_INSTS  = pillar['scidb_cluster_info'][my_cluster]['data1insts'] %}
-{% set DATA_PREFIX   = pillar['scidb_cluster_info'][my_cluster]['dataPrefix'] %}
+{% set HOST_NUMS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['hostNums'] %}
+{% set HOST_LAST_INST = pillar['scidb_cluster_info'][CLUSTER_NAME]['hostLastInst'] %}
+{% set DATA_0_INSTS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['data0insts'] %}
+{% set DATA_1_INSTS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['data1insts'] %}
+{% set DATA_PREFIX   = pillar['scidb_cluster_info'][CLUSTER_NAME]['dataPrefix'] %}
 
 # this hangs on a clean install on centos7, maybe be casue there's never been an init?
 # I don't think this was strictly necessary, I think I put this in an attempt to be clean

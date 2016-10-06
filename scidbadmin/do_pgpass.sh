@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-{% set INST_DIR = pillar['scidb_inst_dir'] %}
+{% from 'idioms.sls' import INST_DIR %}
 
 set -x
 
@@ -28,7 +28,7 @@ COORD_HOST="$1"
 
 # .PGPASS
 # password on the command line where anyone can see it? yuk
-runuser scidbadmin -c "{{INST_DIR + '/bin/scidblib/pgpass_updater.py'}} --update -H $COORD_HOST -d test_dbname -u test_dbuser -p test_dbpassword"
+runuser scidbadmin -c "{{ INST_DIR + '/bin/scidblib/pgpass_updater.py'}} --update -H $COORD_HOST -d test_dbname -u test_dbuser -p test_dbpassword"
 RESULT=$?
 if [ "$RESULT" != "0" ] ; then
     echo "$0: pgpass_updater.py --update RESULT=$RESULT" >&2

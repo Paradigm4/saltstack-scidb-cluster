@@ -1,10 +1,11 @@
 # setup scidb config.ini
 
+{% from 'idioms.sls' import VER %}
+{% from 'idioms.sls' import CLUSTER_NAME %}
+
 # find cluster and server from administrative name (same as minion is addressed)
-{% set myClusterName  = pillar['scidb_minion_info'][grains['fqdn']]['clusterName']  %}
-{% set knownHostsList = pillar['scidb_cluster_info'][myClusterName]['knownHostsList'] %}
-{% set pgHostNameAddr = pillar['scidb_cluster_info'][myClusterName]['hosts'][0]['scidbNameAddr'] %}
-{% set VER            = pillar['scidb_ver'] %}
+{% set KNOWN_HOSTS_LIST = pillar['scidb_cluster_info'][CLUSTER_NAME]['knownHostsList'] %}
+{% set PG_HOST_NAME_ADDR = pillar['scidb_cluster_info'][CLUSTER_NAME]['hosts'][0]['scidbNameAddr'] %}
 
 # DEBUG TIP show_full_context()
 
@@ -74,7 +75,7 @@ scidbadmin_ssh_auth:
 #
 scidbadmin_ssh_known_hosts:
   cmd.script:
-    - name: {{ 'capture_known_hosts.sh ' + knownHostsList|join(' ') }}  
+    - name: {{ 'capture_known_hosts.sh ' + KNOWN_HOSTS_LIST|join(' ') }}  
     - user: scidbadmin
     - shell: /bin/bash
     - source: salt://scidbadmin/capture_known_hosts.sh 
@@ -91,7 +92,7 @@ scidbadmin_ssh_known_hosts:
 scidbadmin_pgpass:
   cmd.script:
     # need the scidbNameAddr for the cluster's server-0
-    - name: {{ 'do_pgpass.sh ' + pgHostNameAddr }}
+    - name: {{ 'do_pgpass.sh ' + PG_HOST_NAME_ADDR }}
     - user: root
     - shell: /bin/bash
     - source: salt://scidbadmin/do_pgpass.sh 
