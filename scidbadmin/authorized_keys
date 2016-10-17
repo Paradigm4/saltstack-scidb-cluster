@@ -1,6 +1,8 @@
-{% set my_cluster         = pillar['scidb_minion_info'][grains['fqdn']]['clusterName'] %}
-{% set my_cluster_hosts   = pillar['scidb_cluster_info'][my_cluster]['hosts'] %}
+{% from 'idioms.sls' import VER %}
+{% from 'idioms.sls' import CLUSTER_NAME %}
 
-{% for host_info in my_cluster_hosts %}
+{% set CLUSTER_HOSTS   = pillar['scidb_cluster_info'][CLUSTER_NAME]['hosts'] %}
+
+{% for host_info in CLUSTER_HOSTS %}
 {{ pillar['scidbadmin_id_rsa_pub'] + ' scidbadmin@' + host_info['scidbNameAddr'] }}
 {% endfor %}
