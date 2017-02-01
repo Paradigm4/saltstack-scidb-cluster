@@ -7,13 +7,13 @@
 
 # install_choices lookups
 {% set REPO_RPM       = pillar.scidb_install_choices[INST_CHOICE].p4repo_rpm      %}
-{% set REPO_KEY_HASH  = pillar.scidb_install_choices[INST_CHOICE].p4repo_key_hash %}
 {% set INST_GROUP     = pillar.scidb_install_choices[INST_CHOICE].install_group   %}
 
 # install_groups lookups
 {% set REPO_SCHEME    = pillar.scidb_install_groups[INST_GROUP].p4repo_scheme %}
 {% set REPO_CREDS     = pillar.scidb_install_groups[INST_GROUP].p4repo_creds %}
 {% set REPO_KEY       = pillar.scidb_install_groups[INST_GROUP].p4repo_key %}
+{% set REPO_KEY_HASH  = pillar.scidb_install_groups[INST_GROUP].p4repo_key_hash %}
 {% set VER            = pillar.scidb_install_groups[INST_GROUP].scidb_ver %}  # later change to SCIDB_VER
 {% set INST_DIR       = pillar.scidb_install_groups[INST_GROUP].scidb_inst_dir %} 
 {% set INST_SERVICE   = pillar.scidb_install_groups[INST_GROUP].scidb_service %} 
