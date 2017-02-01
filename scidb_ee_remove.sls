@@ -62,6 +62,8 @@ scidb_ee_all_repo_remove:
       - paradigm4-repo-15-12
       - paradigm4-repo-16-6
       - paradigm4-repo-16-9
+      - paradigm4-repo-17-1
+      - paradigm4-17.1-repo
 
 # does not really belong in here, but it is handy to avoid mistakes
 p4repo_remove:
@@ -72,8 +74,3 @@ p4repo_remove:
 # because the various test repos all claim to the be the final,
 # yum thinks we have out of data repo xml files and so on.
 # so when re-installing if we remove the metadata, yum forgets about that and starts fresh
-
-
-
-
-
