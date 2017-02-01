@@ -23,6 +23,13 @@
 
 {% set INST_PGVER     = pillar.scidb_install_groups[INST_GROUP].pg_ver %}
 
+# p4repo_pkgname in a choice overrides p4repo_pkgname in a group
+{% if pillar.scidb_install_choices[INST_CHOICE].p4repo_pkgname is defined %}
+{% set REPO_PKGNAME   = pillar.scidb_install_choices[INST_CHOICE].p4repo_pkgname %}
+{% else %}
+{% set REPO_PKGNAME   = pillar.scidb_install_groups[INST_GROUP].p4repo_pkgname %}
+{% endif %}
+
 # pg_info lookups
 {% set PG_REPO_NAME       = pillar.scidb_pg_info[INST_PGVER].repo_name %}
 {% set PG_REPO_SOURCES    = pillar.scidb_pg_info[INST_PGVER].repo_sources %}

@@ -2,7 +2,7 @@
 ## see https://github.com/saltstack-formulas/epel-formula/blob/master/epel/init.sls
 
 {% from 'idioms.sls' import VER %}
-{% from 'idioms.sls' import REPO_CREDS, REPO_SCHEME, REPO_KEY, REPO_KEY_HASH, REPO_RPM %}
+{% from 'idioms.sls' import REPO_CREDS, REPO_SCHEME, REPO_KEY, REPO_KEY_HASH, REPO_RPM, REPO_PKGNAME %}
 
 # TODO: eliminate defaults ... use the pillar or the local, but not both
 
@@ -19,7 +19,7 @@ paradigm4_install_pubkey:
 paradigm4_repo:
   pkg.installed:
     - sources:
-      - paradigm4-repo: {{ REPO_RPM_URI }}
+      - {{ REPO_PKGNAME }}: {{ REPO_RPM_URI }}
 
 paradigm4_repo_set_password:
   file.replace:
