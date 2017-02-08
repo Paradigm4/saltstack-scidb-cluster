@@ -14,7 +14,7 @@
 {% set REPO_CREDS     = pillar.scidb_install_groups[INST_GROUP].p4repo_creds %}
 {% set REPO_KEY       = pillar.scidb_install_groups[INST_GROUP].p4repo_key %}
 {% set REPO_KEY_HASH  = pillar.scidb_install_groups[INST_GROUP].p4repo_key_hash %}
-{% set VER            = pillar.scidb_install_groups[INST_GROUP].scidb_ver %}  # later change to SCIDB_VER
+{% set VER            = pillar.scidb_install_groups[INST_GROUP].scidb_ver %}  {# later change to SCIDB_VER #}
 {% set INST_DIR       = pillar.scidb_install_groups[INST_GROUP].scidb_inst_dir %} 
 {% set INST_SERVICE   = pillar.scidb_install_groups[INST_GROUP].scidb_service %} 
 

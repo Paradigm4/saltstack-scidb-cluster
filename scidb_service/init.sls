@@ -43,7 +43,7 @@ scidb_service_unregister:
     - require:
       - cmd: scidb_service_stop
 
-{% if grains.osfinger != "CentOS Linux-7" %}  # not implemented for systemd
+{% if grains.osfinger != "CentOS Linux-7" %}  {# not implemented for systemd #}
 scidb_service_register:
   cmd.run:
     - user: scidbadmin

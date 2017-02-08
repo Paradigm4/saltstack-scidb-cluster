@@ -63,7 +63,7 @@ scidb_postgres_install:
 
 
 # now need a service start and stuff like that
-{% if serverNumber == 0 %}   # applies to server-0 only
+{% if serverNumber == 0 %}   {# applies to server-0 only #}
 
 ## remove data directories from 'other' postgres releases
 scidb_postgres_rmdir_other:
@@ -133,4 +133,4 @@ postgres_scidb_enabled:
     - name: {{ PG_SERVICE }}
     - enable: true
 
-{% endif %} # server-0
+{% endif %} {# server-0 #}

@@ -10,10 +10,10 @@
 {% set scidbNameAddr= pillar['scidb_cluster_info'][clusterName]['hosts'][serverNumber]['scidbNameAddr'] %}
 {% set scidbDevice  = pillar['scidb_cluster_info'][clusterName]['hosts'][serverNumber]['scidbDevice'] %}
 
-{% set minionIPAddr = salt['dnsutil.A'](grains['fqdn'])[0] %}  # returns a list
+{% set minionIPAddr = salt['dnsutil.A'](grains['fqdn'])[0] %}  {# returns a list #}
 #DEBUG {{ 'scidbNameAddr is ' + scidbNameAddr }}
 
-{% set scidbIPAddr  = salt['dnsutil.A'](scidbNameAddr) [0] %}  # returns a list
+{% set scidbIPAddr  = salt['dnsutil.A'](scidbNameAddr) [0] %}  {# returns a list #}
 #DEBUG {{ 'scidbIPAddr is ' + scidbIPAddr }}
 
 
