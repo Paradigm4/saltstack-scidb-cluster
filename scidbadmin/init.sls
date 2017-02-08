@@ -88,7 +88,7 @@ scidbadmin_ssh_known_hosts:
 #    TODO: can the actions of the script be incorporated directly into this file without
 #          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
 #
-{% if VER != "15.7" %}   # after 15.7, not sure about 15.12 anymore
+{% if VER != "15.7" %}   {# after 15.7, not sure about 15.12 anymore #}
 scidbadmin_pgpass:
   cmd.script:
     # need the scidbNameAddr for the cluster's server-0
