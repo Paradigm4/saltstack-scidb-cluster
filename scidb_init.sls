@@ -14,7 +14,7 @@
 {% if (serverNumber == 0 ) %}
 scidb_init_syscat:
   cmd.run:
-    - name: runuser postgres -c "{{ '/opt/scidb/'+VER+'/bin/scidb.py' }}  -v init-syscat --db-password test_dbpassword test_dbname"
+    - name: runuser postgres -c "{{ '/opt/scidb/'+VER+'/bin/scidb.py' }} init-syscat --db-password test_dbpassword test_dbname"
 {% endif %}
 
 #
@@ -42,7 +42,7 @@ scidb_init_psql_check:
 {% if (serverNumber == 0 ) %}
 scidb_initall:
   cmd.run:
-    - name: runuser scidbadmin -c "{{ '/opt/scidb/'+VER+'/bin/scidb.py' }} -v initall-force test_dbname"
+    - name: runuser scidbadmin -c "{{ '/opt/scidb/'+VER+'/bin/scidb.py' }} initall-force test_dbname"
     - requires: scidb_init_psql_check
 {% endif %}
 
