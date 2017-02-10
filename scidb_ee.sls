@@ -50,7 +50,7 @@ scidb_ee:
       - {{ 'paradigm4-'+VER+'-utils-dbg' }}
 
     - require:
-      - pkg: epel-release                  # from epel
+      - pkg: epel_release                  # from epel
       - pkg: paradigm4_repo                # from paradigm4
 {% if VER == "15.12" or VER == "15.7" %}
       - pkg: devtoolset-3-gdb
