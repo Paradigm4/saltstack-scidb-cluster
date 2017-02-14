@@ -14,7 +14,8 @@
 {% if (serverNumber == 0 ) %}
 scidb_init_syscat:
   cmd.run:
-    - name: runuser postgres -c "{{ '/opt/scidb/'+VER+'/bin/scidb.py' }} init-syscat --db-password test_dbpassword test_dbname"
+    - user: postgres
+    - name: {{ '/opt/scidb/'+VER+'/bin/scidb.py' }} init-syscat --db-password test_dbpassword test_dbname
 {% endif %}
 
 #
@@ -37,12 +38,14 @@ scidb_init_psql_check:
   cmd.run:
     # NOTE: link from /usr/bin/psql to /etc/alternatives missing on Centos7 ... so just use the alternative link itself
     # NOTE: this will only work on Centos, may require rework with 'cmd.run - unless:' to also work with ubuntu
-    - name: runuser scidbadmin -c "/etc/alternatives/pgsql-psql -U test_dbuser -d test_dbname -h {{ PSQL_NAME_ADDR }} --command=\"select 'Hello world'\""
+    - user: scidbadmin
+    - name: psql -U test_dbuser -d test_dbname -h {{ PSQL_NAME_ADDR }} --command="select 'Hello world'"
 
 {% if (serverNumber == 0 ) %}
 scidb_initall:
   cmd.run:
-    - name: runuser scidbadmin -c "{{ '/opt/scidb/'+VER+'/bin/scidb.py' }} initall-force test_dbname"
+    - user: scidbadmin
+    - name: {{ '/opt/scidb/'+VER+'/bin/scidb.py' }} initall-force test_dbname
     - requires: scidb_init_psql_check
 {% endif %}
 
