@@ -30,16 +30,5 @@
 {% set REPO_PKGNAME   = pillar.scidb_install_groups[INST_GROUP].p4repo_pkgname %}
 {% endif %}
 
-# pg_info lookups
-{% set PG_REPO_NAME       = pillar.scidb_pg_info[INST_PGVER].repo_name %}
-{% set PG_REPO_SOURCES    = pillar.scidb_pg_info[INST_PGVER].repo_sources %}
-{% set PG_PKGS            = pillar.scidb_pg_info[INST_PGVER].pkgs %}
-{% set PG_SERVICE         = pillar.scidb_pg_info[INST_PGVER].service %}
-{% set PG_DATA_DIR        = pillar.scidb_pg_info[INST_PGVER].data_dir %}
-{% set PG_OTHER_REPO_NAME = pillar.scidb_pg_info[INST_PGVER].other_repo_name %}
-{% set PG_OTHER_PKGS      = pillar.scidb_pg_info[INST_PGVER].other_pkgs %}
-{% set PG_OTHER_SERVICE   = pillar.scidb_pg_info[INST_PGVER].other_service %}
-{% set PG_OTHER_DATA_DIR  = pillar.scidb_pg_info[INST_PGVER].other_data_dir %}
-
 ### END IDIOMS ###
 
