@@ -6,8 +6,6 @@
 
 {% set HOST_NUMS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['hostNums'] %}
 {% set HOST_LAST_INST = pillar['scidb_cluster_info'][CLUSTER_NAME]['hostLastInst'] %}
-{% set DATA_0_INSTS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['data0insts'] %}
-{% set DATA_1_INSTS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['data1insts'] %}
 {% set DATA_PREFIX   = pillar['scidb_cluster_info'][CLUSTER_NAME]['dataPrefix'] %}
 
 # this hangs on a clean install on centos7, maybe be casue there's never been an init?
@@ -37,63 +35,62 @@ scidb_base_path_init:
 ###       and have it mount or not mount two fixed-name devices
 ###
 
-{% if DATA_PREFIX == "/mnt/data" %}   # otherwise typically /home/data
+{% for host in HOST_NUMS %}
+  {% for data_fs in pillar['scidb_cluster_info'][CLUSTER_NAME]['dataFs'] %}
+    {% set DATA_IDX = data_fs.idx %}
+    {% set DATA_DEV = data_fs.dev %}
 
-{{DATA_PREFIX}}0:
+    {% if DATA_PREFIX == "/mnt/data" %}
+{{'unmount_device_' +DATA_PREFIX +'_' +host|string +'_' +DATA_IDX|string}}:
+  mount.unmounted:
+  - name: {{DATA_PREFIX +DATA_IDX|string}}
+  - persist: True
+
+{{'mount_device_' +DATA_PREFIX +'_' +host|string +'_' +DATA_IDX|string}}:
   mount.mounted:
-  - device: /dev/nvme0n1p1
+  - name: {{DATA_PREFIX +DATA_IDX|string}}
+  - device: {{DATA_DEV}}
   - fstype: xfs
   - mkmnt: True
 
-{{DATA_PREFIX}}1:
-  mount.mounted:
-  - device: /dev/nvme1n1p1
-  - fstype: xfs
-  - mkmnt: True
-
-{% else %}
-
-{{DATA_PREFIX}}0:
+    {% else %}
+{{'ensure_directory_' +DATA_PREFIX +'_' +host|string +'_' +DATA_IDX|string}}:
   file.directory:
+    - name: {{DATA_PREFIX +DATA_IDX|string}}
     - user: scidbadmin
     - mode: 755
+    {% endif %}
 
-{{DATA_PREFIX}}1:
-  file.directory:
-    - user: scidbadmin
-    - mode: 755
-
-{% endif %}
+  {% endfor %}
+{% endfor %}
 
 #
 # remove and re-create data directories referenced by the config.ini
 #
-
-#
 # TODO: eliminate duplication/dependence between this file and config.ini
-# TODO: eliminate the host loop here
 #
+
 {% for host in HOST_NUMS %}
-  {% for inst in DATA_0_INSTS %}
-remove_0_{{ host|string+ '-' +inst|string+ ":" }}
-  file.absent:
-  - name: {{DATA_PREFIX +'0/' +host|string+ '-' +inst|string }}
+  {% for data_fs in pillar['scidb_cluster_info'][CLUSTER_NAME]['dataFs'] %}
+    {% set DATA_IDX = data_fs.idx %}
+    {% for inst in  data_fs.insts %}
+data_dir_loop_debug{{'h' +host|string +'_d' +DATA_IDX|string +'_i' +inst|string}}:
+  cmd.run:
+    - name: {{'echo h' +host|string +'-d' +DATA_IDX|string +'-i' +inst|string}}
 
-create_0_{{ host|string+ '-' +inst|string+ ":" }}
+remove_{{'h' +host|string +'_d' +DATA_IDX|string +'_i' +inst|string}}:
+  file.absent:
+    - name: {{DATA_PREFIX +DATA_IDX|string +'/' +host|string+ '-' +inst|string }}
+
+# TODO: to eliminate a lot of unused directores ...
+# TODO: when actually creating, only do so if the host number is the one the minion is running on
+# if host == this host  (from grains?)
+
+create_{{'h' +host|string +'_d' +DATA_IDX|string +'_i' +inst|string}}:
   file.directory:
     - user: scidbadmin
     - mode: 755
-    - name: {{DATA_PREFIX +'0/' +host|string+ '-' +inst|string }}
-  {% endfor %}
-  {% for inst in DATA_1_INSTS %}
-remove_1_{{ host|string+ '-' +inst|string+ ":" }}
-  file.absent:
-  - name: {{DATA_PREFIX +'1/' +host|string+ '-' +inst|string }}
-
-create_1_{{ host|string+ '-' +inst|string+ ":" }}
-  file.directory:
-    - user: scidbadmin
-    - mode: 755
-    - name: {{DATA_PREFIX +'1/' +host|string+ '-' +inst|string }}
+    - name: {{DATA_PREFIX +DATA_IDX|string +'/' +host|string+ '-' +inst|string }}
+    {% endfor %}
   {% endfor %}
 {% endfor %}

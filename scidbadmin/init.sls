@@ -18,24 +18,26 @@ scidbadmin_user:
   - groups:
     - wheel
 
-#
-# TODO: put id_rsa file data into pillar
-#
+scidbadmin_ssh_dir:
+  file.directory:
+    - name: '~scidbadmin/.ssh'
+    - user: scidbadmin
+    - group: scidbadmin
+    - mode: 700
+    - makedirs: True
+
 scidbadmin_ssh_priv:
   file.managed:
     - name: '~scidbadmin/.ssh/id_rsa'
     - makedirs: True
     - source: 'salt://scidbadmin/id_rsa'
-    - template: jinja
     - user: scidbadmin
     - group: scidbadmin
     - mode: 600
+    - template: jinja
     - require:
       - user: scidbadmin_user
 
-# id_rsa.pub consists of a public key + this host
-#    we will use the same key for scidbadmin everywhere in the cluster
-#    for simplicity in generatating the authorized_keys file
 scidbadmin_ssh_pub:
   file.managed:
     - name: '~scidbadmin/.ssh/id_rsa.pub'
@@ -48,8 +50,6 @@ scidbadmin_ssh_pub:
     - require:
       - file: scidbadmin_ssh_priv
 
-# authorized_keys consists of one public key + hostname per line
-#                 only the client with a correct private can validate this
 scidbadmin_ssh_auth:
   file.managed:
     - name: '~scidbadmin/.ssh/authorized_keys'
@@ -84,5 +84,3 @@ scidbadmin_pgpass:
     - mode: 600
     - require:
       - user: scidbadmin_user
-
-#  TODO: scidb service ... here or in yet another directory?

@@ -3,6 +3,11 @@
 
 set -x
 
+echo "@@@@@@@@@@@@@@@@@@@ at start of capture_known_hosts" 
+echo "(A) $0 checking .ssh dir"
+ls -l ~scidbadmin/.ssh
+echo "@@@@@@@@@@@@@@@@@@@" 
+
 # DEBUG
 WHO=$(whoami)
 if [ "$WHO" != "scidbadmin" ] ; then
@@ -20,6 +25,7 @@ if [ "$#" -lt "1" ] ; then
 fi
 
 HOSTS=$*
+echo "$0: HOSTS = $HOSTS" >&2
 
 #
 # capture public keys from various hosts in known_hosts
@@ -36,9 +42,19 @@ HOSTS=$*
 # With additional effort, we could directly manipulate the known_hosts files and close the
 # window of risk entirely
 #
+echo "(A) $0 checking .ssh dir"
+ls -l ~scidbadmin/.ssh
+echo "$0: ssh to localhost" >&2
 ssh -o StrictHostKeyChecking=no localhost true  # not sure what ssh's to localhost
+
+echo "(B) $0 checking .ssh dir"
+ls -l ~scidbadmin/.ssh
+echo "$0: ssh to 0.0.0.0" >&2
 ssh -o StrictHostKeyChecking=no 0.0.0.0   true  # mpich does this (when launching?)
 for HOST in $HOSTS ; do
+    echo "(C...) checking .ssh dir"
+    ls -l ~scidbadmin/.ssh
+    echo "$0: $HOSTS" >&2
     ssh -o StrictHostKeyChecking=no $HOST true	# a host in the cluster
     RESULT=$?
     if [ "$RESULT" != "0" ] ; then
@@ -47,5 +63,8 @@ for HOST in $HOSTS ; do
     fi
     echo "$0: known_hosts okay for $HOST" >&2
 done
+
+echo "(D) $0 checking .ssh dir"
+ls -l ~scidbadmin/.ssh
 
 exit 0
