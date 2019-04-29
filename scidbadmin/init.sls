@@ -70,7 +70,11 @@ scidbadmin_ssh_auth:
     - name: {{ host_info['scidbNameAddr'] }}
     - enc: rsa
     - hash_known_hosts: False
+# To get the fingerprint of a host
+# - log into the host as root
+# - run 'ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub'
     - fingerprint: {{ host_info['fingerprint'] }}
+    - fingerprint_hash_type: md5
 {% endfor %}
 
 scidbadmin_pgpass:

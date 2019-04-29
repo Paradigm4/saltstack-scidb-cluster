@@ -26,39 +26,54 @@
 #   matching/checking might look at the existing
 #     
 
+#
 # determine if scidbName/scidbDevice is "primary"
-# NOTE: could add other checks and looking at existing values listed above
-#       as a secondary check
-# JHM: seem to be going enterning here on msg1, when
-#      I expect sidbIPAddr and the value of grains to match and make this skip
-#      Instead of figuring this out now, I will comment out this sls
-#      from the top.sls for the moment
-# TODO: re-add this to the top.sls for msg1 and debug why the following is
-#       not matching despite the following hints...
-#HINT on msg1,
-#HINT "salt-call dnsutil.A msg1.local.paradigm4.com" gives
-#HINT  10.0.16.92
-#HINT "salt call -g" and searching for fqdn_ip4 gives 10.0.16.92
-#HINT so in this case, I expect == and am not getting it.
-#HINT   problem in the grains expression?
-#HINT   just have a rule use some jina to dump this to a debug file in /tmp
-#HINT   with some kind of replace statement... that would probably be a trick
-#HINT   worth working out
-# 
+#
+# seems to be working.  should be true for msg1, eth1
+#
+# scidbDevice -- enable if scidb HBA is secondary (not matching the fqdn ip)
+#
 {% if scidbIPAddr != grains['fqdn_ip4'][0] %}   # fqdn_ip4 will be empty if fqdn is not a DNS name
                                                 # and so this implies we are on a secondary network
                                                 # and need to configure the network scripts
 
-# scidbDevice -- enable if matching and not controlled by some other tool
-#
-# todo: might need to put the jinja if here
-#       so its only if its a secondary?
-
-
-
 scidb_ifcfg_exists: 
   file.exists:
     - name: {{ '/etc/sysconfig/network-scripts/ifcfg-' + scidbDevice }}
+
+{% if False %}
+# debugs for the test above
+scidb_ifcfg_debug_fqdn_ip4: 
+  file.replace:
+    - name: {{ '/etc/sysconfig/network-scripts/ifcfg-' + scidbDevice }}
+    - pattern:    "fqdn_ip4=.*"
+    - repl:    {{ "fqdn_ip4=" + grains['fqdn_ip4'][0] }}
+    - append_if_not_found: True
+    - backup: False
+    - require:
+      - file: scidb_ifcfg_exists
+
+scidb_ifcfg_debug_scidbIPAddr: 
+  file.replace:
+    - name: {{ '/etc/sysconfig/network-scripts/ifcfg-' + scidbDevice }}
+    - pattern:    "scidbIPAddr=.*"
+    - repl:    {{ "scidbIPAddr=" + scidbIPAddr }}
+    - append_if_not_found: True
+    - backup: False
+    - require:
+      - file: scidb_ifcfg_exists
+{% endif %}
+
+
+scidb_ifcfg_device:
+  file.replace:
+    - name: {{ '/etc/sysconfig/network-scripts/ifcfg-' + scidbDevice }}
+    - pattern: "DEVICE=.*"
+    - repl:    {{ "DEVICE=" + scidbDevice }}
+    - append_if_not_found: True
+    - backup: False
+    - require:
+      - file: scidb_ifcfg_exists
 
 scidb_ifcfg_onboot:
   file.replace:
@@ -66,6 +81,7 @@ scidb_ifcfg_onboot:
     - pattern: "ONBOOT=.*"
     - repl:    "ONBOOT='yes'"
     - append_if_not_found: True
+    - backup: False
     - require:
       - file: scidb_ifcfg_exists
 
@@ -75,6 +91,7 @@ scidb_ifcfg_network:
     - pattern: "NETWORK=.*"
     - repl:    {{ "NETWORK=" + scidbNetwork }}
     - append_if_not_found: True
+    - backup: False
     - require:
       - file: scidb_ifcfg_onboot
 
@@ -84,6 +101,7 @@ scidb_ifcfg_netmask:
     - pattern: "NETMASK=.*"
     - repl:    {{ "NETMASK=" + scidbNetMask }}
     - append_if_not_found: True
+    - backup: False
     - require:
       - file: scidb_ifcfg_network
 
@@ -93,6 +111,7 @@ scidb_ifcfg_ipaddr:
     - pattern: "IPADDR=.*"
     - repl:    {{ "IPADDR=" + scidbIPAddr }}
     - append_if_not_found: True
+    - backup: False
     - require: 
       - file: scidb_ifcfg_netmask
 
@@ -102,6 +121,7 @@ scidb_ifcfg_userctl:
     - pattern: "USERCTL=.*"
     - repl:    USERCTL="no"
     - append_if_not_found: True
+    - backup: False
     - require:
       - file: scidb_ifcfg_ipaddr
 
@@ -111,6 +131,7 @@ scidb_ifcfg_not_nm_controlled:
     - pattern: "NM_CONTROLLED=.*"
     - repl: "NM_CONTROLLED=no"
     - append_if_not_found: True
+    - backup: False
     - require:
       - file: scidb_ifcfg_userctl
 
@@ -120,6 +141,7 @@ scidb_ifcfg_not_dhcp:
     - pattern: "BOOTPROTO=.*"
     - repl: "BOOTPROTO=none"
     - append_if_not_found: True
+    - backup: False
     - require:
       - file: scidb_ifcfg_not_nm_controlled
 
@@ -139,7 +161,7 @@ scidb_ifcfg_down_wait:
 scidb_ifcfg_up:
   cmd.run:
     - runas: root
-    - name: {{ '/usr/sbin/ifup ' + scidbDevice }}
+    - name: {{ 'ifup ' + scidbDevice }}
     - require:
       - cmd: scidb_ifcfg_down
 
