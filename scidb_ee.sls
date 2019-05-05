@@ -53,10 +53,6 @@ scidb_ee:
 {% else %}
       - 'mpich2scidb-debuginfo'
 {% endif %}
-{% if VER != "15.12" and VER != "15.7" %}
-      - {{ 'paradigm4-'+VER+'-tests'     }}      # tests
-      - {{ 'paradigm4-'+VER+'-p4-tests'  }}      # p4-tests
-{% endif %}
       # third party debuginfo symbols
       - 'libpqxx-debuginfo'
       - 'protobuf-debuginfo'
