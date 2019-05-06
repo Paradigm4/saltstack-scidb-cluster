@@ -15,7 +15,11 @@
 scidb_init_syscat:
   cmd.run:
     - user: postgres
+{% if VER > "18.2" %}
+    - name: {{ '/opt/scidb/'+VER+'/bin/scidbctl.py' }} init-syscat --db-password test_dbpassword test_dbname
+{% else %}
     - name: {{ '/opt/scidb/'+VER+'/bin/scidb.py' }} init-syscat --db-password test_dbpassword test_dbname
+{% endif %}
 {% endif %}
 
 #
@@ -45,7 +49,11 @@ scidb_init_psql_check:
 scidb_initall:
   cmd.run:
     - user: scidbadmin
+{% if VER > "18.2" %}
+    - name: {{ '/opt/scidb/'+VER+'/bin/scidbctl.py' }} init-cluster --force test_dbname
+{% else %}
     - name: {{ '/opt/scidb/'+VER+'/bin/scidb.py' }} initall-force test_dbname
+{% endif %}
     - requires: scidb_init_psql_check
 {% endif %}
 
