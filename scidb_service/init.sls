@@ -11,6 +11,9 @@
 # HACK ALERT
 # copy p4_system.py to /opt/scidb/16.6/bin and remove the p4_system.pyc there
 #
+# The pyc file was compiled on CentOS Linux-6 and would not run on Linux-7
+# After 16.6 no pyc files are shipped, only the py files
+#
 {% if grains.osfinger == "CentOS Linux-7" %}
 {% if VER == "16.6" %}
 scidb_service_p4_system_pyc_remove:

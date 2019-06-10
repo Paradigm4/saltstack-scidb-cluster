@@ -19,16 +19,11 @@
 
 # DEBUG TIP: show_full_context()
 
-
-# scidbHWADDR - check on HWADDR=
-# scidbUUID - optional check on UUID
-
-#   matching/checking might look at the existing
-#     
-
-# determine if scidbName/scidbDevice is "primary"
+# "primary" is the administrative network by which salt can always reach scidb, not necessarily high speed.
+# "secondary" is that it is a network used only for scidb instances to communicate.
+#
+# determine if scidbName/scidbDevice is "primary" or "secondary"
 # NOTE: could add other checks and looking at existing values listed above as a secondary check?
-
 # are we using a "secondary" network for scidb?
 # if so, iterate over all  ipNameAddr and add them to the hosts file
 

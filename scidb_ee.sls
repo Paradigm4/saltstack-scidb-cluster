@@ -30,7 +30,7 @@ libpqxx-3.1:
 # which conflicts with scidb's requirement of 4.0.1
 #
 # Since the installation of libpq-develop by postgres-formula
-# has not dependency the removal gets not "objections"
+# has no dependency, removal of libpqxx is not "objected to"
 # and clears the way for scidb installation.
 #
 remove-libpqxx-5.0:
@@ -38,6 +38,13 @@ remove-libpqxx-5.0:
     - pkgs: 
       - libpqxx: '>=5.0'
 
+# - skip_verify: True
+#
+# Since the paradigm4 packages are served out by an internal repository
+# (http://downloads.local.paradigm4.com) AND since it would require
+# lots of infrastructure changes to establish an internal certification
+# authority to certify internal repositories we skip verifying the packages.
+#
 scidb_ee:
   pkg.installed:
     - skip_verify: True
