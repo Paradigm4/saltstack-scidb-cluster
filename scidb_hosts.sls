@@ -19,8 +19,8 @@
 
 # DEBUG TIP: show_full_context()
 
-# "primary" is the administrative network by which salt can always reach scidb, not necessarily high speed.
-# "secondary" is that it is a network used only for scidb instances to communicate.
+# "primary" is the administrative network by which salt can always reach the test machines, to configure them
+# "secondary" is the network to be used when configuring scidb, for scidb communications. This is likely to be a private network, not connected to the primary
 #
 # determine if scidbName/scidbDevice is "primary" or "secondary"
 # NOTE: could add other checks and looking at existing values listed above as a secondary check?
