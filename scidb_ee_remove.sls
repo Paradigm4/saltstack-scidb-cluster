@@ -21,6 +21,6 @@ scidb_ee_remove_yum_erase_scidb_pkgs:
 
 scidb_ee_remove_yum_rm_repo_files:
   cmd.run:
-    - name: rm -f /etc/yum.repos.d/{scidb,paradigm4,p4}.repo
+    - name: rm -f /etc/yum.repos.d/{scidb3rdparty,scidb,paradigm4,p4}.repo
 
 
