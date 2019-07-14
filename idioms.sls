@@ -6,29 +6,16 @@
 {% set INST_CHOICE    = pillar.scidb_cluster_info[CLUSTER_NAME].install_choice %}
 
 # install_choices lookups
-{% set REPO_RPM       = pillar.scidb_install_choices[INST_CHOICE].p4repo_rpm      %}
+{% set REPO_URL       = pillar.scidb_install_choices[INST_CHOICE].p4repo_url      %}
+{% set REPO_KEY       = pillar.scidb_install_choices[INST_CHOICE].p4repo_key      %}
 {% set INST_GROUP     = pillar.scidb_install_choices[INST_CHOICE].install_group   %}
 
 # install_groups lookups
-{% set REPO_SCHEME    = pillar.scidb_install_groups[INST_GROUP].p4repo_scheme %}
-{% set REPO_CREDS     = pillar.scidb_install_groups[INST_GROUP].p4repo_creds %}
-{% set REPO_KEY       = pillar.scidb_install_groups[INST_GROUP].p4repo_key %}
-{% set REPO_KEY_HASH  = pillar.scidb_install_groups[INST_GROUP].p4repo_key_hash %}
 {% set VER            = pillar.scidb_install_groups[INST_GROUP].scidb_ver %}  {# later change to SCIDB_VER #}
 {% set INST_DIR       = pillar.scidb_install_groups[INST_GROUP].scidb_inst_dir %} 
 {% set INST_SERVICE   = pillar.scidb_install_groups[INST_GROUP].scidb_service %} 
 
-{% set REPO_RPM_URI   = REPO_SCHEME + '//' + REPO_CREDS + REPO_RPM %}
-{% set REPO_KEY_URI   = REPO_SCHEME + '//' + REPO_CREDS + REPO_KEY %}
-
 {% set INST_PGVER     = pillar.scidb_install_groups[INST_GROUP].pg_ver %}
-
-# p4repo_pkgname in a choice overrides p4repo_pkgname in a group
-{% if pillar.scidb_install_choices[INST_CHOICE].p4repo_pkgname is defined %}
-{% set REPO_PKGNAME   = pillar.scidb_install_choices[INST_CHOICE].p4repo_pkgname %}
-{% else %}
-{% set REPO_PKGNAME   = pillar.scidb_install_groups[INST_GROUP].p4repo_pkgname %}
-{% endif %}
 
 ### END IDIOMS ###
 
