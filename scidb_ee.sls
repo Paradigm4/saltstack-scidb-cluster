@@ -2,8 +2,6 @@
 
 include:
   - epel      # access epel repo, uses https://github.com/saltstack-formulas/epel-formula
-  - scidb3rdparty_repo # access scidb3rdparty repo
-  - paradigm4_repo # access paradigm4 repo
 
 {% if VER == "15.12" or VER == "15.7" %}
 
@@ -74,7 +72,6 @@ scidb_ee:
 
     - require:
       - pkg: epel_release                  # from epel
-      - pkg: paradigm4_repo                # from paradigm4
 {% if VER == "15.12" or VER == "15.7" %}
       - pkg: devtoolset-3-gdb
 {% endif %}

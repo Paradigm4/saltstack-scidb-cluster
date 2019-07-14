@@ -2,22 +2,19 @@
 
 scidb_ee_remove_yum_clean_all:
   cmd.run:
-    - name: yum --enablerepo=paradigm4 clean all
+    - name: yum --enablerepo=scidb3rdparty clean all
 
-scidb_ee_remove_yum_clean_metadata:
+scidb_ee_remove_yum_clean_cache:
   cmd.run:
-    - name: yum --enablerepo=paradigm4 clean metadata
+    - name: rm -rf /var/cache/yum
 
 scidb_ee_remove_yum_erase_paradigm4_pkgs:
   cmd.run:
-    # yum -y remove was rpm -e
     - name: yum list | grep -i paradigm4 | awk '{print $1}' | grep '[a-zA-Z]' | xargs yum -y remove
 
 scidb_ee_remove_yum_erase_scidb_pkgs:
   cmd.run:
-    # yum -y remove was rpm -e
     - name: yum list | grep -i scidb | awk '{print $1}' | grep '[a-zA-Z]' | xargs yum -y remove
-
 
 scidb_ee_remove_yum_rm_repo_files:
   cmd.run:
