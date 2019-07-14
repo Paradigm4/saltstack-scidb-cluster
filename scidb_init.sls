@@ -1,8 +1,8 @@
 #    TODO: can the actions of do_inits.sh be incorporated directly into this file without
 #          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
 
-{% from 'idioms.sls' import VER %} {# was: set VER = pillar['scidb_ver'] #}
-{% from 'idioms.sls' import CLUSTER_NAME %}
+{% from 'idioms.sls' import VER %}
+{% from 'idioms.sls' import CLUSTER_NAME, INST_GROUP %}
 
 # which host the posgres is running on
 {% set PSQL_NAME_ADDR = pillar['scidb_cluster_info'][CLUSTER_NAME]['hosts'][0]['scidbNameAddr'] %}
@@ -15,7 +15,15 @@
 scidb_init_syscat:
   cmd.run:
     - user: postgres
+#
+# In the middle of the 18.2 runs the use of scidb.py was deprecated in favor of scidbctl.py
+# The runs of 18.2 that had scidbctl.py are listed with an install_group of 18.2RCscidbctl
+#
+# So use scidbctl.py if release > 18.2 or if the install_group of an 18.2 package repo is "18.2RCscidbctl"
+#
 {% if VER > "18.2" %}
+    - name: {{ '/opt/scidb/'+VER+'/bin/scidbctl.py' }} init-syscat --db-password test_dbpassword test_dbname
+{% elif INST_GROUP == "18.2RCscidbctl" %}
     - name: {{ '/opt/scidb/'+VER+'/bin/scidbctl.py' }} init-syscat --db-password test_dbpassword test_dbname
 {% else %}
     - name: {{ '/opt/scidb/'+VER+'/bin/scidb.py' }} init-syscat --db-password test_dbpassword test_dbname
@@ -49,7 +57,15 @@ scidb_init_psql_check:
 scidb_initall:
   cmd.run:
     - user: scidbadmin
+#
+# In the middle of the 18.2 runs the use of scidb.py was deprecated in favor of scidbctl.py
+# The runs of 18.2 that had scidbctl.py are listed with an install_group of 18.2RCscidbctl
+#
+# So use scidbctl.py if release > 18.2 or if the install_group of an 18.2 package repo is "18.2RCscidbctl"
+#
 {% if VER > "18.2" %}
+    - name: {{ '/opt/scidb/'+VER+'/bin/scidbctl.py' }} init-cluster --force test_dbname
+{% elif INST_GROUP == "18.2RCscidbctl" %}
     - name: {{ '/opt/scidb/'+VER+'/bin/scidbctl.py' }} init-cluster --force test_dbname
 {% else %}
     - name: {{ '/opt/scidb/'+VER+'/bin/scidb.py' }} initall-force test_dbname
