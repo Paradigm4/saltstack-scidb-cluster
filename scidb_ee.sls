@@ -2,6 +2,7 @@
 
 include:
   - epel      # access epel repo, uses https://github.com/saltstack-formulas/epel-formula
+  - scidb_repositories
 
 {% if VER == "15.12" or VER == "15.7" %}
 
