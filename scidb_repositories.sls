@@ -19,6 +19,7 @@ scidb3rdparty:
   - key_url: https://downloads.paradigm4.com/RPM-GPG-KEY-scidb
 ## JHM: modeled after the saltstack formula for epel,
 ## see https://github.com/saltstack-formulas/epel-formula/blob/master/epel/init.sls
+{% endif %}
 
 paradigm4:
   pkgrepo.managed:
@@ -28,4 +29,3 @@ paradigm4:
   - key_url: {{ REPO_KEY }}
   - gpgcheck: 1
   - enabled: 1
-{% endif %}
