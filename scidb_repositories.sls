@@ -2,6 +2,10 @@
 {% from 'idioms.sls' import REPO_URL, REPO_KEY %}
 
 {% if VER > "18.2" %}
+#
+# With 19.3 onwards all 3rdparty packages are now in the paradigm4 repository
+# not separately in scidb3rdparty
+#
 {% else %}
 scidb3rdparty:
   pkgrepo.managed:
