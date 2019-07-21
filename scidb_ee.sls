@@ -38,15 +38,14 @@ remove-libpqxx-5.0:
     - pkgs: 
       - libpqxx: '>=5.0'
 
-# - skip_verify: True
-#
-# Since the paradigm4 packages are served out by an internal repository
-# (http://downloads.local.paradigm4.com) AND since it would require
-# lots of infrastructure changes to establish an internal certification
-# authority to certify internal repositories we skip verifying the packages.
-#
 scidb_ee:
   pkg.installed:
+    #
+    # Since the paradigm4 packages are served out by an internal repository
+    # (http://downloads.local.paradigm4.com) AND since it would require
+    # lots of infrastructure changes to establish an internal certification
+    # authority to certify internal repositories we skip verifying the packages.
+    #
     - skip_verify: True
     - pkgs: 
       - {{ 'paradigm4-'+VER+'-all' }}      # scidb, coordinator-capable
