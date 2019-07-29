@@ -34,20 +34,19 @@ libpqxx-3.1:
 #
 remove-libpqxx-5.0:
   pkg.removed:
-    - pkgs: 
+    - pkgs:
       - libpqxx: '>=5.0'
 
-# - skip_verify: True
-#
-# Since the paradigm4 packages are served out by an internal repository
-# (http://downloads.local.paradigm4.com) AND since it would require
-# lots of infrastructure changes to establish an internal certification
-# authority to certify internal repositories we skip verifying the packages.
-#
 scidb_ee:
   pkg.installed:
+    #
+    # Since the paradigm4 packages are served out by an internal repository
+    # (http://downloads.local.paradigm4.com) AND since it would require
+    # lots of infrastructure changes to establish an internal certification
+    # authority to certify internal repositories we skip verifying the packages.
+    #
     - skip_verify: True
-    - pkgs: 
+    - pkgs:
       - {{ 'paradigm4-'+VER+'-all' }}      # scidb, coordinator-capable
       - {{ 'paradigm4-'+VER+'-dev-tools' }}      # scidb test harness
       - {{ 'paradigm4-'+VER+'-p4'        }}      # p4-only plugins, has dependency on  paradigm4-15.12 (scidb base) which interacts when that is rpm -installed for Centos7

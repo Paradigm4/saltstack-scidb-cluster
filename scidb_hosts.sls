@@ -15,17 +15,19 @@
 
 {% set scidbIPAddr  = salt['dnsutil.A'](scidbNameAddr) [0] %}  {# returns a list #}
 #DEBUG {{ 'scidbIPAddr is ' + scidbIPAddr }}
-
-
 # DEBUG TIP: show_full_context()
 
-# "primary" is the administrative network by which salt can always reach the test machines, to configure them
-# "secondary" is the network to be used when configuring scidb, for scidb communications. This is likely to be a private network, not connected to the primary
+# Definitions
+#   A primary network is the administrative network by which salt can always reach the test machines to configure them.
+#   A secondary network is the network to be used when configuring scidb, for scidb communications (intra machine communication).
+#   This is likely to be a private network not connected to the primary network.
 #
-# determine if scidbName/scidbDevice is "primary" or "secondary"
-# NOTE: could add other checks and looking at existing values listed above as a secondary check?
-# are we using a "secondary" network for scidb?
-# if so, iterate over all  ipNameAddr and add them to the hosts file
+# We need to determine if scidbName/scidbDevice is on the primary or secondary network.
+# If it is on the primary network then the device is already configured, may be in the /etc/hosts file, and is DNS lookup-able.
+# If it is on a secondary network then we need to add the IP of the card to the /etc/hosts file.
+#
+# Iterate over all the ipNameAddr of the network adapters on the secondary network
+# and add them to the hosts file.
 
 {% if scidbIPAddr != grains['fqdn_ip4'][0] %}   {# fqdn_ip4 will be empty if fqdn is not a DNS name #}
                                                 {# and so this implies we are on a secondary network #}
