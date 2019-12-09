@@ -2,7 +2,6 @@
 #          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
 
 {% from 'idioms.sls' import CLUSTER_NAME, VER %}
-{% from 'idioms.sls' import REPO_CREDS, REPO_SCHEME, REPO_KEY, REPO_KEY_HASH, REPO_RPM %}
 
 {% set HOST_NUMS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['hostNums'] %}
 {% set HOST_LAST_INST = pillar['scidb_cluster_info'][CLUSTER_NAME]['hostLastInst'] %}
