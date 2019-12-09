@@ -2,13 +2,12 @@
 #          making this file too cumbersome (e.g. perhaps we can do multiple actions per state?)
 
 {% from 'idioms.sls' import CLUSTER_NAME, VER %}
-{% from 'idioms.sls' import REPO_CREDS, REPO_SCHEME, REPO_KEY, REPO_KEY_HASH, REPO_RPM %}
 
 {% set HOST_NUMS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['hostNums'] %}
 {% set HOST_LAST_INST = pillar['scidb_cluster_info'][CLUSTER_NAME]['hostLastInst'] %}
-{% set DATA_0_INSTS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['data0insts'] %}
-{% set DATA_1_INSTS  = pillar['scidb_cluster_info'][CLUSTER_NAME]['data1insts'] %}
 {% set DATA_PREFIX   = pillar['scidb_cluster_info'][CLUSTER_NAME]['dataPrefix'] %}
+
+{% set hostNum = pillar['scidb_minion_info'][grains['fqdn']]['serverNumber']  %}
 
 # this hangs on a clean install on centos7, maybe be casue there's never been an init?
 # I don't think this was strictly necessary, I think I put this in an attempt to be clean
@@ -30,70 +29,62 @@ scidb_base_path_init:
 #
 
 ###
-### TODO: learn how to make fancier jinja "if" comparisons
-###       like length of list to decide whether there is
-###       a list of device needing to be mounted
-###       until then, let the variable be just True or False
-###       and have it mount or not mount two fixed-name devices
+### mount the data drives listed in host's ['dataFs'] list
 ###
 
-{% if DATA_PREFIX == "/mnt/data" %}   # otherwise typically /home/data
+# note: hostNum set near the top
 
-{{DATA_PREFIX}}0:
+{% for data_fs in pillar['scidb_cluster_info'][CLUSTER_NAME]['dataFs'] %}
+  {% set DATA_IDX = data_fs.idx %}
+
+  {% if DATA_PREFIX == "/mnt/data" %}
+{{'unmount_device_' +DATA_PREFIX +'_' +hostNum|string +'_' +DATA_IDX|string}}:
+  mount.unmounted:
+  - name: {{DATA_PREFIX +DATA_IDX|string}}
+  - persist: True
+
+    {% set DATA_DEV = data_fs.dev %}
+{{'mount_device_' +DATA_PREFIX +'_' +hostNum|string +'_' +DATA_IDX|string}}:
   mount.mounted:
-  - device: /dev/nvme0n1p1
+  - name: {{DATA_PREFIX +DATA_IDX|string}}
+  - device: {{DATA_DEV}}
   - fstype: xfs
   - mkmnt: True
+  - opts:
+    - defaults,noatime,nodiratime,nofail
 
-{{DATA_PREFIX}}1:
-  mount.mounted:
-  - device: /dev/nvme1n1p1
-  - fstype: xfs
-  - mkmnt: True
-
-{% else %}
-
-{{DATA_PREFIX}}0:
+    {% else %}
+{{'ensure_directory_' +DATA_PREFIX +'_' +hostNum|string +'_' +DATA_IDX|string}}:
   file.directory:
+    - name: {{DATA_PREFIX +DATA_IDX|string}}
     - user: scidbadmin
     - mode: 755
+    {% endif %}
 
-{{DATA_PREFIX}}1:
-  file.directory:
-    - user: scidbadmin
-    - mode: 755
-
-{% endif %}
+{% endfor %}
 
 #
 # remove and re-create data directories referenced by the config.ini
 #
+###
+### TODO: eliminate duplication/dependence between this file and config.ini
+###
+{% for data_fs in pillar['scidb_cluster_info'][CLUSTER_NAME]['dataFs'] %}
+  {% set DATA_IDX = data_fs.idx %}
+  {% for inst in  data_fs.insts %}
+data_dir_loop_debug{{'h' +hostNum|string +'_d' +DATA_IDX|string +'_i' +inst|string}}:
+  cmd.run:
+    - name: {{'echo h' +hostNum|string +'-d' +DATA_IDX|string +'-i' +inst|string}}
 
-#
-# TODO: eliminate duplication/dependence between this file and config.ini
-# TODO: eliminate the host loop here
-#
-{% for host in HOST_NUMS %}
-  {% for inst in DATA_0_INSTS %}
-remove_0_{{ host|string+ '-' +inst|string+ ":" }}
+remove_{{'h' +hostNum|string +'_d' +DATA_IDX|string +'_i' +inst|string}}:
   file.absent:
-  - name: {{DATA_PREFIX +'0/' +host|string+ '-' +inst|string }}
+    - name: {{DATA_PREFIX +DATA_IDX|string +'/' +hostNum|string+ '-' +inst|string }}
 
-create_0_{{ host|string+ '-' +inst|string+ ":" }}
+# create directories only on hosts that use them (cleanup above did them all, in case something changed)
+create_{{'h' +hostNum|string +'_d' +DATA_IDX|string +'_i' +inst|string}}:
   file.directory:
     - user: scidbadmin
     - mode: 755
-    - name: {{DATA_PREFIX +'0/' +host|string+ '-' +inst|string }}
-  {% endfor %}
-  {% for inst in DATA_1_INSTS %}
-remove_1_{{ host|string+ '-' +inst|string+ ":" }}
-  file.absent:
-  - name: {{DATA_PREFIX +'1/' +host|string+ '-' +inst|string }}
-
-create_1_{{ host|string+ '-' +inst|string+ ":" }}
-  file.directory:
-    - user: scidbadmin
-    - mode: 755
-    - name: {{DATA_PREFIX +'1/' +host|string+ '-' +inst|string }}
+    - name: {{DATA_PREFIX +DATA_IDX|string +'/' +hostNum|string+ '-' +inst|string }}
   {% endfor %}
 {% endfor %}
