@@ -7,7 +7,6 @@
 # not separately in scidb3rdparty
 #
 {% else %}
-scidb3rdparty:
 scidb_ee_remove_yum_clean_all:
   cmd.run:
     - name: yum --enablerepo=scidb3rdparty clean all

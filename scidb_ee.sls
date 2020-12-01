@@ -51,7 +51,6 @@ scidb_ee:
       - {{ 'paradigm4-'+VER+'-dev-tools' }}      # scidb test harness
       - {{ 'paradigm4-'+VER+'-p4'        }}      # p4-only plugins, has dependency on  paradigm4-15.12 (scidb base) which interacts when that is rpm -installed for Centos7
 
-      - {{ 'scidb-'+VER+'-cityhash-debuginfo' }}
       - {{ 'scidb-'+VER+'-libboost-debuginfo' }}
 {% if VER < "17.9" %}
       - {{ 'scidb-'+VER+'-mpich2-debuginfo' }}
